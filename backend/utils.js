@@ -481,6 +481,7 @@ class items {
 
     return imageInventory;
   }
+  
   itemProcessorCanBeMoved(returnDict, storageRow) {
     const defIndexresult = this.get_def_index(storageRow['def_index']);
 

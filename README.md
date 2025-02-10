@@ -28,6 +28,15 @@ npm run start
 ```
 4. Now navigate to `https://localhost:5173`.
 
+## Showcase
+<div style="margin-bottom: 5px; font-size: 16px; margin-left: 5px;">Login screen</div>
+<img src="images/loginScreen.png" alt="Login Screen" width="800">
+<div style="margin-bottom: 5px; font-size: 16px; margin-left: 5px;">Trade Ups Screen</div>
+<img src="images/tradeUpsScreen.png" alt="Login Screen" width="800">
+<div style="margin-bottom: 5px; font-size: 16px; margin-left: 5px;">Confirmation window</div>
+<img src="images/confirmationScreen.png" alt="Login Screen" width="500">
+
+
 ## To-do list
 
 - Add roulette effect to trade-up
