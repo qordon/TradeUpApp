@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="content">
-      <h1>Trade Ups</h1>
+      <h1>Trade Ups <button @click="testRoulette()" style="color: white;">sdsd</button></h1> 
 
       <div class="filters">
         <span @click="fetchInventory">Refresh</span> |
@@ -139,6 +139,13 @@
       @close="closeModal"
       @confirm-tradeup="confirmTradeUp"
     />
+    <!-- <RouletteWheel :possibleOutcomes="possibleOutcomes" :tradeUpOutcome="tradeUpOutcome" /> -->
+    <RouletteWheel
+      :possibleOutcomes="outcomes"
+      :isOpen="isRouletteWheelOpen"
+      :outcome="tradeUpOutcome"
+      @close="closeRoulette"
+    />
   </div>
 </template>
 
@@ -150,10 +157,13 @@ import { tradeUps } from '../models/tradeUps';
 
 import TradeUpPanel from '../components/TradeUpPanel.vue';
 import TradeUpConfirmation from '../components/TradeUpConfirmation.vue';
+import RouletteWheel from '@/components/RouletteWheel.vue';
 
 const router = useRouter();
 const items = ref([]);
 const isModalOpen = ref(false);
+const isRouletteWheelOpen = ref(false);
+const tradeUpOutcome = ref(null);
 
 const isLoading = ref(true);
 const sortOrder = ref('default');
@@ -191,6 +201,19 @@ onMounted(async () => {
   }
   
 });
+
+const testRoulette = async () => {
+  const response = await axios.get('http://localhost:3000/api/roulette');
+  tradeUpOutcome.value = response.data.tradeUpOutcome;
+  let itemName = response.data.tradeUpOutcome.item_name.replace('StatTrak™ ', '');
+  tradeUpOutcome.value.imageURL = tradeUpInstance.collections[tradeUpInstance.directory[itemName]][itemName]["imageURL"];
+  isRouletteWheelOpen.value = !isRouletteWheelOpen.value;
+
+};
+
+const closeRoulette = () => {
+  isRouletteWheelOpen.value = false;
+};
 
 const fetchInventory = async () => {
   try {
@@ -452,6 +475,7 @@ const toggleItemInTradeUp = async (item) => {
         statTrakFilterTradeUp.value = false;
       }
       outcomes.value = await (tradeUpInstance.getPotentialOutcome(itemsToTradeUp.value));
+      console.log(outcomes.value);
     } 
 
     else {

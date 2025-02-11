@@ -82,7 +82,7 @@ class SteamSession {
         this.csgo.once('connectedToGC', () => {
           console.log('Connected to GC.');
           this.sessionActive = true;
-          this.saveInventoryToFile();
+          // this.saveInventoryToFile();
           resolve({ status: 'loggedIn' });
         });
     
@@ -126,7 +126,7 @@ class SteamSession {
         const timeout = setTimeout(() => {
             this.csgo.removeListener('itemAcquired', onCraftingComplete);
             reject({"error": "Crafting timeout"});
-        }, 10000); // 10 секунд таймаут
+        }, 10000);
 
         const onCraftingComplete = (craftedItem) => {
             clearTimeout(timeout);

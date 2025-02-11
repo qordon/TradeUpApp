@@ -159,7 +159,7 @@ export class tradeUps {
           item_name: item_name,
           item_wear_name: skinRarity,
           percentage: percentageChance.toFixed(1),
-          image: relevantObject['imageURL'],
+          imageURL: relevantObject['imageURL'],
           float_chance: floatChance,
           // temp_float_chance: tempFloatChance,
         };

@@ -125,177 +125,184 @@ class items {
     }
 
     for (const [key, value] of Object.entries(inventoryResult)) {
-
       
-      if (value['def_index'] == undefined) {
-        continue;
+      let returnDict = this.itemConverter(value, isCasket);
+      if (returnDict !== undefined){
+        returnList.push(returnDict);
       }
-      const freeRewardStatusBytes = getAttributeValueBytes(value, 277);
-      if (freeRewardStatusBytes && freeRewardStatusBytes.readUInt32LE(0) === 1) {
-        continue;
-        
-      }
-      let musicIndexBytes = getAttributeValueBytes(value, 166);
-      if (musicIndexBytes instanceof Object){
-        musicIndexBytes = Buffer.from(musicIndexBytes.data);
-      }
-      if (musicIndexBytes) {
-        value.music_index = musicIndexBytes.readUInt32LE(0);
-      }
-      let graffitiTint = getAttributeValueBytes(value, 233);
-
-      if (graffitiTint instanceof Object){
-        graffitiTint = Buffer.from(graffitiTint.data);
-      }
-
-      if (graffitiTint) {
-        value.graffiti_tint = graffitiTint.readUInt32LE(0);
-      }
-      if (
-        (value['casket_id'] !== undefined && isCasket == false) ||
-        ['17293822569110896676', '17293822569102708641'].includes(value['id'])
-      ) {
-        continue;
-      }
-      // console.log(value['item_id'])
-
-
-      const returnDict = {};
-      // URL
-      let imageURL = this.handleError(this.itemProcessorImageUrl, [value]);
-
-      const iconMatch = getAttributeValueBytes(value, 70)?.readUInt32LE(0);
-      if (
-        value['def_index'] == 1201 &&
-        iconMatch &&
-        this.csgoItems['casket_icons']?.[iconMatch]?.icon_path
-      ) {
-        imageURL = this.csgoItems['casket_icons']?.[iconMatch]?.icon_path;
-      }
-      // Check names
-      returnDict['item_name'] = this.handleError(this.itemProcessorName, [
-        value,
-        imageURL,
-      ]);
-      if (returnDict['item_name'] == '') {
-        console.log('Error');
-        try {
-          console.log(value, this.get_def_index(value['def_index']));
-        } catch (err) {
-          console.log(value);
-        }
-      }
-      returnDict['item_customname'] = value['custom_name'];
-      returnDict['item_url'] = imageURL;
-      returnDict['item_id'] = value['id'];
-      returnDict['position'] = 9999;
-      if (value['position'] != null) {
-        returnDict['position'] = value['position'];
-      }
-
-      // Check tradable after value
-      if (value['tradable_after'] !== undefined) {
-        const tradable_after_date = new Date(value['tradable_after']);
-        const todaysDate = new Date();
-        if (
-          tradable_after_date >= todaysDate &&
-          returnDict['item_name'].includes('Key') == false
-        ) {
-          returnDict['trade_unlock'] = tradable_after_date;
-        }
-      }
-
-      if (value['casket_contained_item_count'] !== undefined) {
-        returnDict['item_storage_total'] = value['casket_contained_item_count'];
-      }
-
-      // Check paint_wear value
-      if (value['paint_wear'] !== undefined) {
-        returnDict['item_wear_name'] = this.handleError(getSkinWearName, [
-          value['paint_wear'],
-        ]);
-        returnDict['item_paint_wear'] = value['paint_wear'];
-      }
-      if(value['paint_seed'] !== undefined){
-        returnDict['item_paint_seed'] = this.handleError(getSkinWearName, [
-          value['paint_seed'],
-        ]);
-        returnDict['item_paint_seed'] = value['paint_seed'];
-      }
-
-      // Trade restrictions (maybe?)
-      returnDict['item_origin'] = value['origin'];
-
-      returnDict['item_moveable'] = this.handleError(
-        this.itemProcessorCanBeMoved,
-        [returnDict, value]
-      );
-
-      returnDict['item_has_stickers'] = this.handleError(
-        this.itemProcessorHasStickersApplied,
-        [returnDict, value]
-      );
-      let equipped = this.handleError(this.itemProcessorisEquipped, [value]);
-      returnDict['equipped_ct'] = equipped[0];
-      returnDict['equipped_t'] = equipped[1];
-      returnDict['def_index'] = value['def_index'];
-
-      if (returnDict['item_has_stickers']) {
-        const stickerList = [];
-        for (const [stickersKey, stickersValue] of Object.entries(
-          value['stickers']
-        )) {
-          stickerList.push(
-            this.handleError(this.stickersProcessData, [stickersValue])
-          );
-        }
-        returnDict['stickers'] = stickerList;
-      } else {
-        returnDict['stickers'] = [];
-      }
-
-      if (
-        value?.rarity == 6 ||
-        value?.quality == 3 ||
-        returnDict['item_name'].includes('Souvenir') ||
-        !returnDict['item_url'].includes('econ/default_generated')
-      ) {
-        returnDict['tradeUp'] = false;
-      } else {
-        returnDict['rarity'] = value.rarity;
-        returnDict['rarityName'] = this.handleError(
-          this.itemProcessorGetRarityName,
-          [value.rarity]
-        );
-        returnDict['tradeUp'] = true;
-      }
-      returnDict['stattrak'] = false;
-      if (this.isStatTrak(value)) {
-        returnDict['stattrak'] = true;
-        returnDict['item_name'] = 'StatTrak™ ' + returnDict['item_name'];
-      }
-      // Star
-      if (value['quality'] == 3) {
-        returnDict['item_name'] = '★ ' + returnDict['item_name'];
-        returnDict['item_moveable'] = true;
-      }
-
-      // Promotional pin fix
-      if (returnDict['item_name']?.includes('Pin') && value['origin'] == 5) {
-        returnDict['item_moveable'] = false;
-      }
-
-      // Promotional music kit fix
-      if (value['music_index'] != undefined && value['origin'] == 0) {
-        returnDict['item_moveable'] = false;
-      }
-
-      // returnDict['coordinator_data'] = JSON.stringify(value);
-      // console.log(value, returnDict)
-
-      returnList.push(returnDict);
+      
     }
     return returnList;
+  }
+
+  itemConverter(value, isCasket = false){
+
+    if (value['def_index'] == undefined) {
+      return;
+    }
+    const freeRewardStatusBytes = getAttributeValueBytes(value, 277);
+    if (freeRewardStatusBytes && freeRewardStatusBytes.readUInt32LE(0) === 1) {
+      return;
+      
+    }
+    let musicIndexBytes = getAttributeValueBytes(value, 166);
+    if (musicIndexBytes instanceof Object){
+      musicIndexBytes = Buffer.from(musicIndexBytes.data);
+    }
+    if (musicIndexBytes) {
+      value.music_index = musicIndexBytes.readUInt32LE(0);
+    }
+    let graffitiTint = getAttributeValueBytes(value, 233);
+
+    if (graffitiTint instanceof Object){
+      graffitiTint = Buffer.from(graffitiTint.data);
+    }
+
+    if (graffitiTint) {
+      value.graffiti_tint = graffitiTint.readUInt32LE(0);
+    }
+    if (
+      (value['casket_id'] !== undefined && isCasket == false) ||
+      ['17293822569110896676', '17293822569102708641'].includes(value['id'])
+    ) {
+      return;
+    }
+    // console.log(value['item_id'])
+
+
+    const returnDict = {};
+    // URL
+    let imageURL = this.handleError(this.itemProcessorImageUrl, [value]);
+
+    const iconMatch = getAttributeValueBytes(value, 70)?.readUInt32LE(0);
+    if (
+      value['def_index'] == 1201 &&
+      iconMatch &&
+      this.csgoItems['casket_icons']?.[iconMatch]?.icon_path
+    ) {
+      imageURL = this.csgoItems['casket_icons']?.[iconMatch]?.icon_path;
+    }
+    // Check names
+    returnDict['item_name'] = this.handleError(this.itemProcessorName, [
+      value,
+      imageURL,
+    ]);
+    if (returnDict['item_name'] == '') {
+      console.log('Error');
+      try {
+        console.log(value, this.get_def_index(value['def_index']));
+      } catch (err) {
+        console.log(value);
+      }
+    }
+    returnDict['item_customname'] = value['custom_name'];
+    returnDict['item_url'] = imageURL;
+    returnDict['item_id'] = value['id'];
+    returnDict['position'] = 9999;
+    if (value['position'] != null) {
+      returnDict['position'] = value['position'];
+    }
+
+    // Check tradable after value
+    if (value['tradable_after'] !== undefined) {
+      const tradable_after_date = new Date(value['tradable_after']);
+      const todaysDate = new Date();
+      if (
+        tradable_after_date >= todaysDate &&
+        returnDict['item_name'].includes('Key') == false
+      ) {
+        returnDict['trade_unlock'] = tradable_after_date;
+      }
+    }
+
+    if (value['casket_contained_item_count'] !== undefined) {
+      returnDict['item_storage_total'] = value['casket_contained_item_count'];
+    }
+
+    // Check paint_wear value
+    if (value['paint_wear'] !== undefined) {
+      returnDict['item_wear_name'] = this.handleError(getSkinWearName, [
+        value['paint_wear'],
+      ]);
+      returnDict['item_paint_wear'] = value['paint_wear'];
+    }
+    if(value['paint_seed'] !== undefined){
+      returnDict['item_paint_seed'] = this.handleError(getSkinWearName, [
+        value['paint_seed'],
+      ]);
+      returnDict['item_paint_seed'] = value['paint_seed'];
+    }
+
+    // Trade restrictions (maybe?)
+    returnDict['item_origin'] = value['origin'];
+
+    returnDict['item_moveable'] = this.handleError(
+      this.itemProcessorCanBeMoved,
+      [returnDict, value]
+    );
+
+    returnDict['item_has_stickers'] = this.handleError(
+      this.itemProcessorHasStickersApplied,
+      [returnDict, value]
+    );
+    let equipped = this.handleError(this.itemProcessorisEquipped, [value]);
+    returnDict['equipped_ct'] = equipped[0];
+    returnDict['equipped_t'] = equipped[1];
+    returnDict['def_index'] = value['def_index'];
+
+    if (returnDict['item_has_stickers']) {
+      const stickerList = [];
+      for (const [stickersKey, stickersValue] of Object.entries(
+        value['stickers']
+      )) {
+        stickerList.push(
+          this.handleError(this.stickersProcessData, [stickersValue])
+        );
+      }
+      returnDict['stickers'] = stickerList;
+    } else {
+      returnDict['stickers'] = [];
+    }
+
+    if (
+      value?.rarity == 6 ||
+      value?.quality == 3 ||
+      returnDict['item_name'].includes('Souvenir') ||
+      !returnDict['item_url'].includes('econ/default_generated')
+    ) {
+      returnDict['tradeUp'] = false;
+    } else {
+      returnDict['rarity'] = value.rarity;
+      returnDict['rarityName'] = this.handleError(
+        this.itemProcessorGetRarityName,
+        [value.rarity]
+      );
+      returnDict['tradeUp'] = true;
+    }
+    returnDict['stattrak'] = false;
+    if (this.isStatTrak(value)) {
+      returnDict['stattrak'] = true;
+      returnDict['item_name'] = 'StatTrak™ ' + returnDict['item_name'];
+    }
+    // Star
+    if (value['quality'] == 3) {
+      returnDict['item_name'] = '★ ' + returnDict['item_name'];
+      returnDict['item_moveable'] = true;
+    }
+
+    // Promotional pin fix
+    if (returnDict['item_name']?.includes('Pin') && value['origin'] == 5) {
+      returnDict['item_moveable'] = false;
+    }
+
+    // Promotional music kit fix
+    if (value['music_index'] != undefined && value['origin'] == 0) {
+      returnDict['item_moveable'] = false;
+    }
+
+    // returnDict['coordinator_data'] = JSON.stringify(value);
+    // console.log(value, returnDict)
+    return returnDict;
   }
 
   itemProcessorGetRarityName(rarity) {

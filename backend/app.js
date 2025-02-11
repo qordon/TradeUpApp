@@ -20,7 +20,8 @@ app.get('/', (req, res) => {
 
 app.get('/api/check', async (req, res) => {
   try {
-    const isConnected = await SteamSession.isSessionActive();
+    const isConnected = true;
+    // const isConnected = await SteamSession.isSessionActive();
     return res.status(200).json({"isConnected": isConnected});
   } catch {
     return res.status(501).json({"isConnected": false});
@@ -32,7 +33,7 @@ app.post('/api/login', async (req, res) => {
 
   var loginOptionsLegacy = { accountName: account_name, webLogonToken: token, steamID: steamid };
   console.log(loginOptionsLegacy);
-
+  return res.status(200).json({ message: 'Successful login', data: {} });
   try {
     const result = await SteamSession.login(loginOptionsLegacy);
     return res.status(200).json({ message: 'Successful login', data: result });
@@ -40,15 +41,6 @@ app.post('/api/login', async (req, res) => {
     return res.status(500).json({ message: 'Login failed', error: error.toString() });
   }
 
-  return res.status(200).json({"message": "successful", "data": req.body});
-
-  const { accountName, password, twoFactorCode } = req.body;
-  try {
-    const loginResponse = await SteamSession.login({ accountName, password, twoFactorCode });
-    res.json(loginResponse);
-  } catch (error) {
-    res.status(401).json({ error: 'Login failed', details: error.message });
-  }
 });
 
 app.get('/api/inventory', async (req, res) => {
@@ -65,13 +57,24 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+app.get('/api/roulette', async (req, res) => {
+  const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
+  const data = fs.readFileSync(inventoryPath, 'utf8');
+  const inventory = JSON.parse(data);
+  let resultItem = csgo_items.itemConverter(inventory[4]);
+
+  return res.status(200).json({'successful': true, 'tradeUpOutcome': resultItem});
+  console.log(imageURL);
+});
+
 app.get('/api/tradeups', (req, res) => {
-  SteamSession.saveInventoryToFile();
+  // SteamSession.saveInventoryToFile();
   const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
   try {
     const data = fs.readFileSync(inventoryPath, 'utf8');
     const inventory = JSON.parse(data);
     let convertedInventory = csgo_items.inventoryConverter(inventory);
+    const undefinedCount = convertedInventory.filter(item => item === undefined).length;
     convertedInventory = convertedInventory.filter(item => item.tradeUp === true);
     return res.status(200).json({ message: 'Successful login', data: convertedInventory });
   } catch (err) {
