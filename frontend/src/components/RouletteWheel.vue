@@ -40,7 +40,7 @@ const emit = defineEmits(["close"]);
 
 
 let timeoutSpinning;
-let timeoutShowing
+let timeoutShowing;
 
 const containerStyle = computed(() => ({
   marginLeft: containerMargin.value,
@@ -65,21 +65,18 @@ const generate = async () => {
   for (let i = 0; i < 40; i++) {
     items.value.push(rouletteSelection(props.possibleOutcomes));
   }
-  console.log(props.outcome);
   items.value[36] = props.outcome;
-  console.log(items.value);
   await nextTick(); 
   timeoutSpinning = setTimeout(() => {
 
     let rand = Math.abs(Math.cos(Math.random() * Math.PI));
     let scaled = rand * ((-5001) - (-5148)) + (-5150);
     const randomNumber = Math.round(scaled);
-    console.log(randomNumber);
     containerMargin.value = randomNumber + "px";
 
     timeoutShowing= setTimeout(() => {
       skinVisible.value = true;
-    }, 7200);
+    }, 7300);
   }, 100);
   
 };
@@ -125,6 +122,8 @@ onUnmounted(() => {
   position: relative;
   background-color: gray;
   padding: 5px 0px;
+  border-left: 5px solid gray;
+  border-right: 5px solid gray;
   
 }
 
@@ -141,7 +140,7 @@ onUnmounted(() => {
 
 .case-track {
   display: flex;
-  transition: all 8s cubic-bezier(.08, .6, 0, 1);
+  transition: all 7s cubic-bezier(.08, .6, 0, 1);
 }
 
 .case-item {

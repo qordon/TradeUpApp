@@ -1,18 +1,5 @@
 import collections from '@/stores/collections.json'
-import init, { decimal_to_result, binstr_to_result, hexstring_to_result, binstr_plus, binstr_minus } from "../models/floatconv.js";
-// import Module from './converting.js';
 
-init().then(() => {
-
-});
-
-// const wasmModule = await Module();
-// if (!wasmModule._calculateOutputFloatValue) {
-//   console.error("Функція _calculateOutputFloatValue не знайдена!");
-// }
-// else {
-//   console.log("ALL good time");
-// }
 
 async function setCollections(currencyClass) {
 
@@ -49,14 +36,18 @@ export class tradeUps {
 
   // Get rarity
   getRarity(min_wear, max_wear, averageFloat) {
-    let c = (max_wear - min_wear) * averageFloat;
+    let abc = new Float32Array([min_wear, max_wear, averageFloat, 0, 0]);
+    abc[3] = abc[1] - abc[0]; // float range
+    abc[4] = (abc[3] * abc[2]) + abc[0]; // output float
+    let output_float_string = (abc[4].toFixed(35)).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+
     for (const [key, value] of Object.entries(this.rarityLevels)) {
       let chance = (value - min_wear) / (max_wear - min_wear);
       if (chance > averageFloat) {
-        return [key, decimal_to_result((c + parseFloat(min_wear)).toString())];
+        return [key, output_float_string];
       }
     }
-    return ['Battle-Scarred', decimal((c + parseFloat(min_wear)).toString())];
+    return ['Battle-Scarred', output_float_string];
   }
 
   // Get possible outcomes
@@ -127,11 +118,13 @@ export class tradeUps {
         });
   
         possibleSkins.push(...possible);
-        average += element.item_paint_wear;
         items_paint_wear.push(element.item_paint_wear);
       });
-  
-      average = average / arrayOfItems.length;
+      let sum = new Float32Array(1);
+      for (let i = 0; i < items_paint_wear.length; i++) {
+        sum[0] += items_paint_wear[i];
+      }
+      average = new Float32Array([sum[0] / items_paint_wear.length])[0];
       
       seenSkins.forEach((skin) => {
         let relevantObject = this.collections[this.directory[skin]][skin];
@@ -147,14 +140,6 @@ export class tradeUps {
             possibleSkins.filter((item) => item === skin).length);
   
         let item_name = isStattrak ? `StatTrak™ ${skin}` : skin;
-        // items_paint_wear = new Float32Array(items_paint_wear);
-        // let calc_output = wasmModule.cwrap('calculateOutputFloatValue', 'string', ['array', 'float', 'float'])
-        // let tempFloatChance = calc_output(items_paint_wear, 
-        //                                                 parseFloat(relevantObject['min-wear']),
-        //                                                 parseFloat(relevantObject['max-wear']));
-        // let tempFloatChance = wasmModule._calculateOutputFloatValue(items_paint_wear, 
-        //                                                     relevantObject['min-wear'],
-        //                                                     relevantObject['max-wear']);
         let objectToWrite = {
           item_name: item_name,
           item_wear_name: skinRarity,

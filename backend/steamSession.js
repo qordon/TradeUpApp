@@ -82,7 +82,7 @@ class SteamSession {
         this.csgo.once('connectedToGC', () => {
           console.log('Connected to GC.');
           this.sessionActive = true;
-          // this.saveInventoryToFile();
+          this.saveInventoryToFile();
           resolve({ status: 'loggedIn' });
         });
     
@@ -110,9 +110,7 @@ class SteamSession {
   
   }
 
-
   isSessionActive() {
-    // return this.sessionActive;
     return this.csgo.haveGCSession;
   }
 

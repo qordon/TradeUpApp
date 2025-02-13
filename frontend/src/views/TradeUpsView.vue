@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="content">
-      <h1>Trade Ups <button @click="testRoulette()" style="color: white;">sdsd</button></h1> 
+      <h1>Trade Ups</h1> 
 
       <div class="filters">
         <span @click="fetchInventory">Refresh</span> |
@@ -139,7 +139,6 @@
       @close="closeModal"
       @confirm-tradeup="confirmTradeUp"
     />
-    <!-- <RouletteWheel :possibleOutcomes="possibleOutcomes" :tradeUpOutcome="tradeUpOutcome" /> -->
     <RouletteWheel
       :possibleOutcomes="outcomes"
       :isOpen="isRouletteWheelOpen"
@@ -202,17 +201,9 @@ onMounted(async () => {
   
 });
 
-const testRoulette = async () => {
-  const response = await axios.get('http://localhost:3000/api/roulette');
-  tradeUpOutcome.value = response.data.tradeUpOutcome;
-  let itemName = response.data.tradeUpOutcome.item_name.replace('StatTrak™ ', '');
-  tradeUpOutcome.value.imageURL = tradeUpInstance.collections[tradeUpInstance.directory[itemName]][itemName]["imageURL"];
-  isRouletteWheelOpen.value = !isRouletteWheelOpen.value;
-
-};
-
 const closeRoulette = () => {
   isRouletteWheelOpen.value = false;
+  outcomes.value = [];
 };
 
 const fetchInventory = async () => {
@@ -295,11 +286,15 @@ const confirmTradeUp = async () => {
     if (response.data.success === true) {
       closeModal();
       itemsToTradeUp.value = [];
-      outcomes.value = [];
+      
       rarityFilterTradeUp.value = null;
       statTrakFilterTradeUp.value = null;
 
-      alert("Crafting successful! ");
+      tradeUpOutcome.value = response.data.craftedItem;
+      let itemName = response.data.craftedItem.item_name.replace('StatTrak™ ', '');
+      tradeUpOutcome.value.imageURL = tradeUpInstance.collections[tradeUpInstance.directory[itemName]][itemName]["imageURL"];
+
+      isRouletteWheelOpen.value = true;
     }
     else {
       closeModal();
@@ -475,7 +470,6 @@ const toggleItemInTradeUp = async (item) => {
         statTrakFilterTradeUp.value = false;
       }
       outcomes.value = await (tradeUpInstance.getPotentialOutcome(itemsToTradeUp.value));
-      console.log(outcomes.value);
     } 
 
     else {
@@ -605,7 +599,6 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #555;
   border: none;
-  /* font-size: 14px; */
 }
 
 th {

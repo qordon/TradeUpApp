@@ -40,11 +40,10 @@
                             <div style="width: 100%;display: flex; justify-content: space-between;">
                                 <span>{{ outcome.item_name }}</span>
                             </div>
-                            <div style="width: 100%; display: flex; justify-content: space-between;">
+                            <div style="width: 100%; display: flex; justify-content: space-between; gap: 5px;">
                                 <div class="small-text">{{ outcome.float_chance }}</div>
                                 <span class="small-text">{{ outcome.percentage }}%</span>
                             </div>
-                            <!-- <div>{{ outcome.item_name }} {{ outcome.percentage }}%</div> -->
                             
                         </div>
                     </div>
@@ -165,6 +164,7 @@ const handleOverlayClick = (event) => {
     display: flex;
     background: #333;
     padding: 10px;
+    
     border-radius: 5px;
     text-align: center;
     border: 1px solid #555;
@@ -201,6 +201,7 @@ const handleOverlayClick = (event) => {
 .outcome-item {
     background: #444;
     padding: 10px;
+    padding-right: 5px;
     border-radius: 5px;
     border: 1px solid #666;
 }

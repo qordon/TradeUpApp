@@ -20,8 +20,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/check', async (req, res) => {
   try {
-    const isConnected = true;
-    // const isConnected = await SteamSession.isSessionActive();
+    const isConnected = await SteamSession.isSessionActive();
     return res.status(200).json({"isConnected": isConnected});
   } catch {
     return res.status(501).json({"isConnected": false});
@@ -32,8 +31,6 @@ app.post('/api/login', async (req, res) => {
   const { account_name, token, steamid } = req.body;
 
   var loginOptionsLegacy = { accountName: account_name, webLogonToken: token, steamID: steamid };
-  console.log(loginOptionsLegacy);
-  return res.status(200).json({ message: 'Successful login', data: {} });
   try {
     const result = await SteamSession.login(loginOptionsLegacy);
     return res.status(200).json({ message: 'Successful login', data: result });
@@ -57,24 +54,14 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
-app.get('/api/roulette', async (req, res) => {
-  const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
-  const data = fs.readFileSync(inventoryPath, 'utf8');
-  const inventory = JSON.parse(data);
-  let resultItem = csgo_items.itemConverter(inventory[4]);
-
-  return res.status(200).json({'successful': true, 'tradeUpOutcome': resultItem});
-  console.log(imageURL);
-});
-
 app.get('/api/tradeups', (req, res) => {
-  // SteamSession.saveInventoryToFile();
+  SteamSession.saveInventoryToFile();
   const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
   try {
     const data = fs.readFileSync(inventoryPath, 'utf8');
     const inventory = JSON.parse(data);
     let convertedInventory = csgo_items.inventoryConverter(inventory);
-    const undefinedCount = convertedInventory.filter(item => item === undefined).length;
+
     convertedInventory = convertedInventory.filter(item => item.tradeUp === true);
     return res.status(200).json({ message: 'Successful login', data: convertedInventory });
   } catch (err) {
@@ -86,15 +73,16 @@ app.get('/api/tradeups', (req, res) => {
 app.post('/api/confirm/tradeup', async (req, res) => {
   try {
     const { itemsIds, itemsSeeds, itemsFloats, recipeId } = req.body;
-    console.log(itemsIds);
-    console.log(recipeId);
     if (SteamSession.isSessionActive()) {
       try {
         const timestamp = Math.floor(Date.now() / 1000);
         const craftedItem = await SteamSession.craft(itemsIds, recipeId);
         await saveCraft(itemsIds, itemsSeeds, itemsFloats, craftedItem, timestamp);
-        return res.status(200).json({"success": true, "craftedItem": craftedItem})
+        console.log(craftedItem);
+        let resultItem = csgo_items.itemConverter(craftedItem);
+        return res.status(200).json({"success": true, "craftedItem": resultItem})
       } catch (error) {
+        console.log(error);
         return res.status(500).json({ "success": false, "message": error });
       }
     } else {
