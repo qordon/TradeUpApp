@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="content">
-      <h1>Trade Ups</h1>
+      <h1>Trade Ups</h1> 
 
       <div class="filters">
         <span @click="fetchInventory">Refresh</span> |
@@ -139,6 +139,12 @@
       @close="closeModal"
       @confirm-tradeup="confirmTradeUp"
     />
+    <RouletteWheel
+      :possibleOutcomes="outcomes"
+      :isOpen="isRouletteWheelOpen"
+      :outcome="tradeUpOutcome"
+      @close="closeRoulette"
+    />
   </div>
 </template>
 
@@ -150,10 +156,13 @@ import { tradeUps } from '../models/tradeUps';
 
 import TradeUpPanel from '../components/TradeUpPanel.vue';
 import TradeUpConfirmation from '../components/TradeUpConfirmation.vue';
+import RouletteWheel from '@/components/RouletteWheel.vue';
 
 const router = useRouter();
 const items = ref([]);
 const isModalOpen = ref(false);
+const isRouletteWheelOpen = ref(false);
+const tradeUpOutcome = ref(null);
 
 const isLoading = ref(true);
 const sortOrder = ref('default');
@@ -191,6 +200,11 @@ onMounted(async () => {
   }
   
 });
+
+const closeRoulette = () => {
+  isRouletteWheelOpen.value = false;
+  outcomes.value = [];
+};
 
 const fetchInventory = async () => {
   try {
@@ -272,11 +286,15 @@ const confirmTradeUp = async () => {
     if (response.data.success === true) {
       closeModal();
       itemsToTradeUp.value = [];
-      outcomes.value = [];
+      
       rarityFilterTradeUp.value = null;
       statTrakFilterTradeUp.value = null;
 
-      alert("Crafting successful! ");
+      tradeUpOutcome.value = response.data.craftedItem;
+      let itemName = response.data.craftedItem.item_name.replace('StatTrak™ ', '');
+      tradeUpOutcome.value.imageURL = tradeUpInstance.collections[tradeUpInstance.directory[itemName]][itemName]["imageURL"];
+
+      isRouletteWheelOpen.value = true;
     }
     else {
       closeModal();
@@ -581,7 +599,6 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #555;
   border: none;
-  /* font-size: 14px; */
 }
 
 th {

@@ -31,8 +31,6 @@ app.post('/api/login', async (req, res) => {
   const { account_name, token, steamid } = req.body;
 
   var loginOptionsLegacy = { accountName: account_name, webLogonToken: token, steamID: steamid };
-  console.log(loginOptionsLegacy);
-
   try {
     const result = await SteamSession.login(loginOptionsLegacy);
     return res.status(200).json({ message: 'Successful login', data: result });
@@ -40,15 +38,6 @@ app.post('/api/login', async (req, res) => {
     return res.status(500).json({ message: 'Login failed', error: error.toString() });
   }
 
-  return res.status(200).json({"message": "successful", "data": req.body});
-
-  const { accountName, password, twoFactorCode } = req.body;
-  try {
-    const loginResponse = await SteamSession.login({ accountName, password, twoFactorCode });
-    res.json(loginResponse);
-  } catch (error) {
-    res.status(401).json({ error: 'Login failed', details: error.message });
-  }
 });
 
 app.get('/api/inventory', async (req, res) => {
@@ -72,6 +61,7 @@ app.get('/api/tradeups', (req, res) => {
     const data = fs.readFileSync(inventoryPath, 'utf8');
     const inventory = JSON.parse(data);
     let convertedInventory = csgo_items.inventoryConverter(inventory);
+
     convertedInventory = convertedInventory.filter(item => item.tradeUp === true);
     return res.status(200).json({ message: 'Successful login', data: convertedInventory });
   } catch (err) {
@@ -83,15 +73,16 @@ app.get('/api/tradeups', (req, res) => {
 app.post('/api/confirm/tradeup', async (req, res) => {
   try {
     const { itemsIds, itemsSeeds, itemsFloats, recipeId } = req.body;
-    console.log(itemsIds);
-    console.log(recipeId);
     if (SteamSession.isSessionActive()) {
       try {
         const timestamp = Math.floor(Date.now() / 1000);
         const craftedItem = await SteamSession.craft(itemsIds, recipeId);
         await saveCraft(itemsIds, itemsSeeds, itemsFloats, craftedItem, timestamp);
-        return res.status(200).json({"success": true, "craftedItem": craftedItem})
+        console.log(craftedItem);
+        let resultItem = csgo_items.itemConverter(craftedItem);
+        return res.status(200).json({"success": true, "craftedItem": resultItem})
       } catch (error) {
+        console.log(error);
         return res.status(500).json({ "success": false, "message": error });
       }
     } else {

@@ -110,9 +110,7 @@ class SteamSession {
   
   }
 
-
   isSessionActive() {
-    // return this.sessionActive;
     return this.csgo.haveGCSession;
   }
 
@@ -126,7 +124,7 @@ class SteamSession {
         const timeout = setTimeout(() => {
             this.csgo.removeListener('itemAcquired', onCraftingComplete);
             reject({"error": "Crafting timeout"});
-        }, 10000); // 10 секунд таймаут
+        }, 10000);
 
         const onCraftingComplete = (craftedItem) => {
             clearTimeout(timeout);

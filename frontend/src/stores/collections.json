@@ -7015,7 +7015,7 @@
         "Glock-18 | Block-18": {
             "quality": "Restricted",
             "min-wear": "0.00",
-            "max-wear": "0.67",
+            "max-wear": "0.671875",
             "category": "Normal",
             "best_quality": "6",
             "trade_up": true,
@@ -7045,7 +7045,7 @@
         "Sawed-Off | Analog Input": {
             "quality": "Restricted",
             "min-wear": "0.00",
-            "max-wear": "0.62",
+            "max-wear": "0.61886",
             "category": "Normal",
             "best_quality": "6",
             "trade_up": true,
