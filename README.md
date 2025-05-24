@@ -43,4 +43,5 @@ npm run start
 
 - Add roulette effect to trade-up ✅
 - Improve calculating system for float values ✅
+- Add logic for items float matching ✅
 
