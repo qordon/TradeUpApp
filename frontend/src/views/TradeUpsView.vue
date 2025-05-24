@@ -8,6 +8,9 @@
         <span @click="clearFilters">Clear Filters</span> |
         <span @click="toggleFilters">Options<span v-if="isFilterApplied">*</span></span> |
         <input type="text" v-model="searchQuery" placeholder="Search Items" />
+        <span class="float-selector-button" @click="openFloatPrompt">
+          <img src="@/assets/images/magic-wand.png" alt="Float Selector" class="float-selector-icon"/>
+        </span>
       </div>
 
       <div v-if="showFilters" class="filter-menu">
@@ -483,13 +486,81 @@ const swapItems = async (i,j) => {
   itemsToTradeUp.value[j] = temp;
   outcomes.value = await (tradeUpInstance.getPotentialOutcome(itemsToTradeUp.value));
 }
-const clearTradeupItems = (item) => {
+const clearTradeupItems = () => {
   itemsToTradeUp.value = [];
   outcomes.value = [];
   rarityFilterTradeUp.value = null;
   statTrakFilterTradeUp.value = null;
 
 }
+
+const openFloatPrompt = async () => {
+  const input = prompt('Enter float values (format: (0.123, 0.894, 0.456):');
+  if (input === null) return;
+
+  let targetFloats;
+  try {
+    if (input.startsWith('(') && input.endsWith(')')) {
+      const numbersStr = input.slice(1, -1).split(',');
+      targetFloats = numbersStr.map(num => parseFloat(num.trim()));
+    }
+    else if (input.startsWith('[') && input.endsWith(']')) {
+      try {
+        targetFloats = JSON.parse(input).map(num => parseFloat(num));
+      } catch {
+        throw new Error('Invalid array format');
+      }
+    }
+    else {
+      throw new Error('Invalid format');
+    }
+
+    if (!targetFloats.every(num => !isNaN(num) && num >= 0 && num <= 1)) {
+      throw new Error('Invalid numbers');
+    }
+
+    const matchingItems = targetFloats.map(targetFloat => {
+      // Get the number of decimal places in the input
+      const decimalPlaces = targetFloat.toString().split('.')[1]?.length || 0;
+      const precision = Math.min(decimalPlaces, 12);
+      const targetFloatStr = targetFloat.toFixed(precision);
+      
+      // Find the closest match if precision is less than 12
+      if (precision < 12) {
+        let closestItem = null;
+        let minDifference = Infinity;
+        
+        for (const item of sortedItems.value) {
+          const itemFloatStr = item.item_paint_wear.toFixed(precision);
+          if (itemFloatStr === targetFloatStr) {
+            return item;
+          }
+          
+          // Calculate difference for closest match
+          const difference = Math.abs(item.item_paint_wear - targetFloat);
+          if (difference < minDifference) {
+            minDifference = difference;
+            closestItem = item;
+          }
+        }
+        return closestItem;
+      }
+      
+      // For 12 decimal places, use exact match
+      return sortedItems.value.find(item => 
+        item.item_paint_wear.toFixed(12) === targetFloatStr
+      );
+    }).filter(Boolean);
+
+    clearTradeupItems();
+    for (const item of matchingItems) {
+      await toggleItemInTradeUp(item);
+    }
+
+  } catch (error) {
+    alert('Invalid format! Please use format: (0.123, 0.894, 0.456)');
+  }
+};
 
 </script>
 
@@ -737,5 +808,34 @@ button:hover {
 }
 .selected-item td {
   background-color: #111;
+}
+
+.float-selector-button {
+  color: #888;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: #444;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.float-selector-button:hover {
+  background-color: #555;
+}
+
+.float-selector-icon {
+  width: 18px;
+  height: 18px;
+  filter: invert(1);
+}
+
+.float-selector-button:hover .float-selector-icon {
+  filter: invert(1) brightness(1.2);
 }
 </style>
