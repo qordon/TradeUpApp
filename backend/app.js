@@ -54,6 +54,64 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+app.get('/api/getStorageContents', async (req, res) => {
+  try{
+    const casketId = req.query.casketId;
+    console.log(casketId);
+    const casketContents = await new Promise((resolve, reject) => {
+      try {
+        SteamSession.getCasketContents(casketId, (err, items) => {
+          if (err) return reject(err);
+          resolve(items);
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+    console.log(casketContents);
+    // SteamSession.saveInventoryToFile();
+    // const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
+    try {
+      // const data = fs.readFileSync(inventoryPath, 'utf8');
+      // const inventory = JSON.parse(data);
+      let convertedInventory = csgo_items.inventoryConverter(casketContents, isCasket=true);
+      console.log(convertedInventory);
+      // convertedInventory = convertedInventory.filter(item => item.casket_id === casketId);
+      return res.status(200).json({ message: 'Successful login', data: convertedInventory });
+    } catch (err) {
+      console.error('Error getting casket contents', err);
+      return res.status(500).json({ message: 'Getting items from storage failed', error: err.toString() });
+    }
+  } catch (err) {
+    console.error('Error getting casket contents', err);
+    return res.status(500).json({ message: 'Getting items from storage failed', error: err.toString() });
+  }
+  
+});
+
+app.get('/api/transferFromStorage', async (req, res) => {
+  try {
+    const { casketId, itemId } = req.body;
+    await SteamSession.removeFromCasket(casketId, itemId);
+    return res.status(200).json({message: 'Successful'});
+  } catch (err){
+    console.error('Error adding to casket', err);
+    return res.status(500).json({ message: 'Transfering items to storage failed', error: err.toString() });
+  }
+})
+
+
+app.get('/api/transferToStorage', async (req, res) => {
+  try {
+    const { casketId, itemId } = req.body;
+    await SteamSession.addToCasket(casketId, itemId);
+    return res.status(200).json({message: 'Successful'});
+  } catch (err){
+    console.error('Error adding to casket', err);
+    return res.status(500).json({ message: 'Transfering items to storage failed', error: err.toString() });
+  }
+});
+
 app.get('/api/tradeups', (req, res) => {
   SteamSession.saveInventoryToFile();
   const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');

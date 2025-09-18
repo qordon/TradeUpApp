@@ -1,11 +1,12 @@
 <template>
     <div class="sidebar">
       <h2>TradeUp App</h2>
-      <!-- <button @click="goTo('/inventory')" class="centered-button">
-        <img src="@/assets/inventory.png" alt="Add" class="action-icon"/>Inventory
-      </button> -->
+      
       <button @click="goTo('/tradeups')" class="centered-button">
         <img src="@/assets/images/hand-tools.png" alt="Add" class="action-icon"/> Trade Up
+      </button>
+      <button @click="goTo('/inventory')" class="centered-button">
+        <img src="@/assets/images/inventory.png" alt="Add" class="action-icon"/>Inventory
       </button>
       <button @click="logout()" class="centered-button">
         <img src="@/assets/images/logout.png" alt="Add" class="action-icon"/> Logout
