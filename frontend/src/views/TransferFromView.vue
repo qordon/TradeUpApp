@@ -11,9 +11,10 @@
         <!-- <button class="group-toggle-btn" :class="{ active: groupAll }" @click="toggleGroupAll">
           {{ groupAll ? 'UNGROUP' : 'GROUP' }}
         </button> | -->
-        <span @click="toggleGroupAll" class="group-toggle-btn" :class="{ active: groupAll }">{{ groupAll ? 'UNGROUP' : 'GROUP' }}</span>
+        <span @click="toggleGroupAll" class="group-toggle-btn" :class="{ active: groupAll }">{{ groupAll ? 'UNGROUP' : 'GROUP' }}</span> |
         <span>
-          {{ selectedCount }}
+          {{ selectedCount }} items
+          <img src="@/assets/images/exchange.png" alt="Selected" class="action-icon small-icon"/>
         </span> | 
         <!-- <button class="move-selected-btn" @click="moveSelected">
           EXTRACT
@@ -101,25 +102,25 @@
         <table>
           <thead>
             <tr style="padding-left: 5px;">
-              <th @click="sortData('item_name')" style="width: 40%">
+              <th @click="sortData('item_name')" style="width: 38%">
                 ITEM
                 <span v-if="sortKey === 'item_name'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('item_paint_wear')" style="width: 10%">
+              <th @click="sortData('item_paint_wear')" style="width: 9%">
                 FLOAT
                 <span v-if="sortKey === 'item_paint_wear'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('collection')" style="width: 18%">
+              <th @click="sortData('collection')" style="width: 16%">
                 COLLECTION
                 <span v-if="sortKey === 'collection'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('stickers')">
+              <th @click="sortData('stickers')" style="width: 22%">
                 STICKERS
                 <span v-if="sortKey === 'stickers'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
@@ -131,8 +132,9 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th style="width: 8%">QTY</th>
-              <th style="width: 12%">MOVE</th>
+              <th style="width: 6%">QTY</th>
+              <th style="width: 8%">MOVE</th>
+              <th>MAX</th>
               <!-- <th style="width: 5.5%">ADD</th> -->
             </tr>
           </thead>
@@ -147,11 +149,13 @@
                 </div>
               </td>
               <td>
-                <span :title="item.item_paint_wear">
-                  {{ item.item_paint_wear ? item.item_paint_wear.toString().slice(0, 9) : '' }}
-                </span>
-                <div v-if="activeItem === item" class="full-paint-wear">
-                  {{ item.item_paint_wear }}
+                <div v-if="!item.__isGrouped">
+                  <span :title="item.item_paint_wear">
+                    {{ item.item_paint_wear ? item.item_paint_wear.toString().slice(0, 9) : '' }}
+                  </span>
+                  <div v-if="activeItem === item" class="full-paint-wear">
+                    {{ item.item_paint_wear }}
+                  </div>
                 </div>
               </td>
               <td>{{ cleanCollectionName(item.collection) }}</td>
@@ -165,16 +169,23 @@
               <td>{{ item.__storageName || '' }}</td>
               <td>{{ item.qty || 1 }}</td>
               <td>
-                <div style="display:flex; align-items:center; gap:6px;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
                   <input
                     class="move-input"
                     type="number"
                     min="0"
                     :max="item.qty"
-                    v-model.number="moveQuantities[item.__rowKey]"
+                    :value="getMoveQty(item.__rowKey)"
+                    @input="onMoveInputFrom(item, $event)"
+                    @keydown="onMoveKeyDown"
+                    @paste="onMovePaste"
                   />
+                </div>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
                   <button @click="onMaxClick(item)" title="Fill max">
-                    <img src="@/assets/images/hand-tools.png" alt="Max" class="action-icon"/>
+                    <img src="@/assets/images/up-arrow.png" alt="Max" class="action-icon"/>
                   </button>
                 </div>
               </td>
@@ -241,6 +252,37 @@ const setMoveQty = (key, val) => {
   moveQuantities.value[key] = !isNaN(n) && n >= 0 ? n : 0;
 };
 
+// Strict MOVE input handlers (digits only, clamp to row max)
+const onMoveKeyDown = (e) => {
+  // Allow navigation and editing keys
+  const allowedKeys = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End',];
+  if (allowedKeys.includes(e.key)) return;
+  // Allow digits only
+  if (/^\d$/.test(e.key)) return;
+  // Block everything else (no minus, dot, comma, letters, etc.)
+  e.preventDefault();
+};
+
+const onMovePaste = (e) => {
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (!/^\d+$/.test(text)) {
+    e.preventDefault();
+  }
+};
+
+const onMoveInputFrom = (row, e) => {
+  const key = row.__rowKey;
+  // Keep digits only
+  const raw = String(e.target.value || '');
+  const digits = raw.replace(/\D+/g, '');
+  let n = digits === '' ? 0 : Number(digits);
+  const max = Number(row.qty || 0);
+  if (n > max) n = max;
+  moveQuantities.value[key] = n;
+  // Reflect sanitized value back to input
+  e.target.value = String(n);
+};
+
 // Grouping logic: group by storage+name for groupable types, or all if groupAll is on
 const isGroupable = (item) => {
   if (groupAll.value) return true;
@@ -261,6 +303,7 @@ const groupedItems = computed(() => {
         const rep = { ...it };
         rep.qty = 1;
         rep.__rowKey = key;
+        rep.__isGrouped = true;
         map.set(key, rep);
         // Do not auto-select; leave moveQuantities undefined until user types
       } else {
@@ -269,7 +312,7 @@ const groupedItems = computed(() => {
       }
     } else {
       const repKey = it.item_id || key;
-      const rep = { ...it, qty: 1, __rowKey: repKey };
+      const rep = { ...it, qty: 1, __rowKey: repKey, __isGrouped: false };
       map.set(repKey, rep);
       // Do not auto-select; leave moveQuantities undefined until user types
     }
@@ -541,17 +584,18 @@ const groupedFilteredItems = computed(() => {
         const rep = { ...it };
         rep.qty = 1;
         rep.__rowKey = key;
+        rep.__isGrouped = true;
         map.set(key, rep);
-        if (moveQuantities.value[rep.__rowKey] == null) moveQuantities.value[rep.__rowKey] = 1;
+        if (moveQuantities.value[rep.__rowKey] == null) moveQuantities.value[rep.__rowKey] = 0;
       } else {
         const rep = map.get(key);
         rep.qty += 1;
       }
     } else {
       const repKey = it.item_id || key;
-      const rep = { ...it, qty: 1, __rowKey: repKey };
+      const rep = { ...it, qty: 1, __rowKey: repKey, __isGrouped: false };
       map.set(repKey, rep);
-      if (moveQuantities.value[rep.__rowKey] == null) moveQuantities.value[rep.__rowKey] = 1;
+      if (moveQuantities.value[rep.__rowKey] == null) moveQuantities.value[rep.__rowKey] = 0;
     }
   }
   return Array.from(map.values());
@@ -724,6 +768,12 @@ th, td {
   border: none;
 }
 
+/* Center all columns except the first (ITEM) */
+th:not(:first-child),
+td:not(:first-child) {
+  text-align: center;
+}
+
 th {
   background-color: #222;
   color: white;
@@ -790,6 +840,13 @@ button:hover {
   width: 20px;
   height: 20px;
   filter: invert(1);
+}
+.small-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-left: 6px;
+  opacity: 0.9;
 }
 .action-icon.remove {
   filter: invert(17%) sepia(94%) saturate(7480%) hue-rotate(-5deg) brightness(107%) contrast(116%);
@@ -893,18 +950,30 @@ button:hover {
 
 /* Modern darker input for MOVE */
 .move-input {
-  width: 74px;
+  width: 56px;
   padding: 4px 6px;
   border-radius: 6px;
   border: 1px solid #555;
   background-color: #222;
   color: #eee;
+  text-align: center; /* center number inside input */
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .move-input:focus {
   border-color: #88aaff;
   box-shadow: 0 0 0 2px rgba(136, 170, 255, 0.2);
+}
+
+/* Remove native number spinners */
+.move-input::-webkit-outer-spin-button,
+.move-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.move-input[type=number] {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 /* Toolbar buttons */

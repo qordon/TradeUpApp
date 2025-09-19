@@ -41,6 +41,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.get('/api/inventory', async (req, res) => {
+  SteamSession.saveInventoryToFile();
   const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
 
   try {
