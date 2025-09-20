@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const SteamSession = require('./steamSession');
+const GlobalOffensive = require('globaloffensive');
 const items = require('./utils');
 
 const app = express();
@@ -90,10 +91,10 @@ app.get('/api/getStorageContents', async (req, res) => {
   
 });
 
-app.get('/api/transferFromStorage', async (req, res) => {
+app.post('/api/transferFromStorage', async (req, res) => {
   try {
     const { casketId, itemId } = req.body;
-    await SteamSession.removeFromCasket(casketId, itemId);
+    // await SteamSession.removeFromCasket(casketId, itemId);
     return res.status(200).json({message: 'Successful'});
   } catch (err){
     console.error('Error adding to casket', err);
@@ -102,11 +103,64 @@ app.get('/api/transferFromStorage', async (req, res) => {
 })
 
 
-app.get('/api/transferToStorage', async (req, res) => {
+app.post('/api/transferToStorage', async (req, res) => {
   try {
-    const { casketId, itemId } = req.body;
-    await SteamSession.addToCasket(casketId, itemId);
-    return res.status(200).json({message: 'Successful'});
+    const { casketId, itemIds } = req.body;
+
+    // Expect payload from frontend: { casketId: string|number, itemIds: string[] }
+    const ids = Array.isArray(itemIds) ? itemIds : (itemIds ? [itemIds] : []);
+    if (!casketId || ids.length === 0) {
+      return res.status(400).json({ message: 'Invalid payload: require casketId and itemIds[]' });
+    }
+
+    // Ensure we have an active GC session
+    if (!SteamSession.isSessionActive()) {
+      return res.status(502).json({ message: 'Not connected to Game Coordinator' });
+    }
+
+    // Helper: wait for a CasketAdded notification from GC (single-shot with timeout)
+    const waitForCasketAdded = (timeoutMs = 3000) => {
+      return new Promise((resolve) => {
+        let finished = false;
+        const done = (ok) => {
+          if (finished) return;
+          finished = true;
+          try { SteamSession.csgo.removeListener('itemCustomizationNotification', onNotif); } catch {}
+          clearTimeout(timer);
+          resolve(ok);
+        };
+
+        const onNotif = (itemIds, notificationType) => {
+          if (notificationType === GlobalOffensive.ItemCustomizationNotification.CasketAdded) {
+            // Confirmed by GC
+            done(true);
+          }
+        };
+
+        const timer = setTimeout(() => done(false), timeoutMs);
+        SteamSession.csgo.once('itemCustomizationNotification', onNotif);
+      });
+    };
+
+    // Process items sequentially: issue addToCasket, await GC confirmation (or timeout)
+    const results = [];
+    for (const id of ids) {
+      try {
+        SteamSession.addToCasket(casketId, id);
+        const ok = await waitForCasketAdded();
+        if (ok) {
+          results.push({ itemId: id, success: true });
+        } else {
+          results.push({ itemId: id, success: false, error: 'Game Coordinator did not confirm move (timeout)' });
+        }
+      } catch (e) {
+        results.push({ itemId: id, success: false, error: e?.toString?.() || 'Unknown error' });
+      }
+    }
+    const successCount = results.filter(r => r.success).length;
+    const failedCount = results.length - successCount;
+
+    return res.status(200).json({ message: 'Processed', successCount, failedCount, results });
   } catch (err){
     console.error('Error adding to casket', err);
     return res.status(500).json({ message: 'Transfering items to storage failed', error: err.toString() });

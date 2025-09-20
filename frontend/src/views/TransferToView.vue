@@ -200,6 +200,29 @@
       </div>
   
     </div>
+    
+    <!-- Transfer Result Modal -->
+    <div v-if="isTransferModalOpen" class="modal-overlay">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Moving Items</h3>
+        </div>
+        <div class="modal-body" v-if="transferPending">
+          <div class="spinner"></div>
+          <div>Processing your move request...</div>
+        </div>
+        <div class="modal-body" v-else>
+          <div v-if="transferError" class="error-text">{{ transferError }}</div>
+          <div v-else>
+            <div>Successful: <strong>{{ transferResult?.successCount || 0 }}</strong></div>
+            <div>Failed: <strong>{{ transferResult?.failedCount || 0 }}</strong></div>
+          </div>
+        </div>
+        <div class="modal-footer" v-if="!transferPending">
+          <button class="move-selected-btn close-modal-btn" @click="closeTransferModal">CLOSE</button>
+        </div>
+      </div>
+    </div>
   </template>
   
   <script setup>
@@ -362,23 +385,27 @@
         }
         
       });
-  
+
       // For TransferTo, show inventory items that are movable only
       items.value = allInventory.value.filter(it => {
         const movable = (typeof it.item_moveable !== 'undefined') ? it.item_moveable : (typeof it.movable !== 'undefined' ? it.movable : true);
         return movable === true && it.item_name !== 'Storage Unit';
       });
-  
+
+      // Reset all MOVE inputs to zero after fetching inventory
+      moveQuantities.value = {};
+
     } catch (error) {
       console.error('Error fetching inventory:', error);
     } finally {
       isLoading.value = false;
     }
   };
-  
+
   // Destination storage selection (only one)
   const selectedStorageId = ref(null);
   const isStorageSelected = (storage) => String(selectedStorageId.value) === String(storage.item_id);
+  // ... rest of the code remains the same ...
   const toggleStorage = (storage) => {
     const id = storage.item_id;
     selectedStorageId.value = String(selectedStorageId.value) === String(id) ? null : id;
@@ -458,14 +485,49 @@
     return map;
   };
   
+  // Modal state for transfer
+  const isTransferModalOpen = ref(false);
+  const transferPending = ref(false);
+  const transferResult = ref(null);
+  const transferError = ref(null);
+
+  const closeTransferModal = () => {
+    isTransferModalOpen.value = false;
+  };
+
   const moveSelected = () => {
     if (!selectedStorageId.value) {
       console.log('No destination storage selected');
       return;
     }
     const payload = buildTransferPayload();
-    console.log('Move selected requested (to storage -> item_ids):', payload, 'Remaining capacity:', remainingCapacity.value);
-    // TODO: batch transfer logic later
+    const targetId = selectedStorageId.value;
+    const itemIds = payload[targetId] || [];
+    if (!itemIds.length) {
+      console.log('No items selected to move');
+      return;
+    }
+
+    // Open modal and start request
+    isTransferModalOpen.value = true;
+    transferPending.value = true;
+    transferResult.value = null;
+    transferError.value = null;
+
+    axios.post('http://localhost:3000/api/transferToStorage', {
+      casketId: targetId,
+      itemIds
+    })
+    .then((resp) => {
+      transferResult.value = resp?.data || { successCount: 0, failedCount: 0 };
+    })
+    .catch((err) => {
+      console.error('Transfer error:', err);
+      transferError.value = err?.response?.data?.message || err?.message || 'Unknown error';
+    })
+    .finally(() => {
+      transferPending.value = false;
+    });
   };
   
   const sortData = (key) => {
@@ -1036,6 +1098,62 @@
     margin-top: 2px;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.75);
+  }
+
+  /* Modal styles */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .modal-dialog {
+    width: 360px;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #444;
+    background: #1a1a1a;
+  }
+  .modal-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .modal-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #444;
+    display: flex;
+    justify-content: flex-end;
+    background: #1a1a1a;
+  }
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #444;
+    border-top-color: #88aaff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .error-text {
+    color: #ff6b6b;
+    text-align: center;
+  }
+  .close-modal-btn {
+    padding: 3px 15px;
   }
   </style>
   
