@@ -4,7 +4,7 @@
       <h1>Transfer from</h1> 
 
       <div class="filters">
-        <span @click="">Refresh</span> |
+        <span @click="fetchInventory">Refresh</span> |
         <span @click="clearFilters">Clear Filters</span> |
         <span @click="toggleFilters">Options<span v-if="isFilterApplied">*</span></span> |
         <input type="text" v-model="searchQuery" placeholder="Search Items" /> |
@@ -201,6 +201,29 @@
     </div>
 
   </div>
+
+  <!-- Transfer Result Modal -->
+  <div v-if="isTransferModalOpen" class="modal-overlay" @click="closeTransferModal">
+    <div class="modal-dialog" @click.stop>
+      <div class="modal-header">
+        <h3>Extracting Items</h3>
+      </div>
+      <div class="modal-body" v-if="transferPending">
+        <div class="spinner"></div>
+        <div>Processing your extract request...</div>
+      </div>
+      <div class="modal-body" v-else>
+        <div v-if="transferError" class="error-text">{{ transferError }}</div>
+        <div v-else>
+          <div>Successful: <strong>{{ transferResult?.successCount || 0 }}</strong></div>
+          <div>Failed: <strong>{{ transferResult?.failedCount || 0 }}</strong></div>
+        </div>
+      </div>
+      <div class="modal-footer" v-if="!transferPending">
+        <button class="move-selected-btn close-modal-btn" @click="closeTransferModal">CLOSE</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -217,6 +240,9 @@ const isRouletteWheelOpen = ref(false);
 const tradeUpOutcome = ref(null);
 
 const isLoading = ref(true);
+// Inventory capacity restriction (Steam max 1000 items in inventory)
+const INVENTORY_LIMIT = 1000;
+const currentInventoryCount = ref(0);
 const sortOrder = ref('default');
 const sortKey = ref('item_name');
 const searchQuery = ref('');
@@ -276,8 +302,12 @@ const onMoveInputFrom = (row, e) => {
   const raw = String(e.target.value || '');
   const digits = raw.replace(/\D+/g, '');
   let n = digits === '' ? 0 : Number(digits);
-  const max = Number(row.qty || 0);
-  if (n > max) n = max;
+  const rowMax = Number(row.qty || 0);
+  const current = Number(moveQuantities.value[key] || 0);
+  // Remaining capacity excluding this row's current selection
+  const remainingExcl = Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value - (selectedCount.value - current));
+  const cap = Math.max(0, Math.min(rowMax, remainingExcl));
+  if (n > cap) n = cap;
   moveQuantities.value[key] = n;
   // Reflect sanitized value back to input
   e.target.value = String(n);
@@ -340,6 +370,8 @@ const fetchInventory = async () => {
     isLoading.value = true;
     const response = await axios.get('http://localhost:3000/api/inventory');
     allInventory.value = [...response.data.data].reverse();
+    // Save current inventory count for capacity checks (includes Storage Units as items)
+    currentInventoryCount.value = Array.isArray(allInventory.value) ? allInventory.value.length : 0;
 
     allInventory.value.forEach((item) => {
       let itemName = item.item_name.replace('StatTrak™ ', '');
@@ -453,10 +485,15 @@ const onMoveClick = (row) => {
   // TODO: implement backend call to transfer items from storage
 };
 
-// Click on ADD column: set the MOVE input to max available for that row
+// Click on MAX column: set the MOVE input to the maximum allowed respecting capacity
 const onMaxClick = (row) => {
   const key = row.__rowKey;
-  moveQuantities.value[key] = Number(row.qty || 1);
+  const rowMax = Number(row.qty || 1);
+  const current = Number(moveQuantities.value[key] || 0);
+  // Remaining capacity excluding this row's current selection
+  const remainingExcl = Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value - (selectedCount.value - current));
+  const cap = Math.max(0, Math.min(rowMax, remainingExcl));
+  moveQuantities.value[key] = cap;
 };
 
 // Selected to move: reactive list and total count (sum of quantities)
@@ -474,6 +511,8 @@ const selectedToMove = computed(() => {
 });
 
 const selectedCount = computed(() => selectedToMove.value.reduce((sum, x) => sum + x.qty, 0));
+// Remaining capacity for extraction to inventory
+const remainingCapacity = computed(() => Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value - selectedCount.value));
 
 // Build backend payload: { [storageId]: [itemId, ...] }
 const buildTransferPayload = () => {
@@ -492,11 +531,56 @@ const buildTransferPayload = () => {
   return map;
 };
 
+// Modal state and extract action
+const isTransferModalOpen = ref(false);
+const transferPending = ref(false);
+const transferResult = ref(null);
+const transferError = ref(null);
+
+const closeTransferModal = () => {
+  isTransferModalOpen.value = false;
+};
+
 const moveSelected = () => {
   const payload = buildTransferPayload();
-  console.log('Move selected requested (by storage -> item_ids):', payload);
-  // TODO: batch transfer logic later
+  const allIdsCount = Object.values(payload).reduce((sum, arr) => sum + arr.length, 0);
+  if (allIdsCount === 0) return;
+
+  // Capacity guard: ensure we won't exceed 1000 in inventorybut in
+  if (currentInventoryCount.value + selectedCount.value > INVENTORY_LIMIT) {
+    // Clamp all inputs would be ideal; here we just block and inform user in modal
+    isTransferModalOpen.value = true;
+    transferPending.value = false;
+    transferResult.value = null;
+    transferError.value = `Not enough capacity. Remaining: ${Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value)} items.`;
+    return;
+  }
+
+  isTransferModalOpen.value = true;
+  transferPending.value = true;
+  transferResult.value = null;
+  transferError.value = null;
+
+  axios.post('http://localhost:3000/api/transferFromStorage', payload)
+    .then((resp) => {
+      transferResult.value = resp?.data || { successCount: 0, failedCount: 0 };
+    })
+    .catch((err) => {
+      console.error('Extract error:', err);
+      transferError.value = err?.response?.data?.message || err?.message || 'Unknown error';
+    })
+    .finally(() => {
+      transferPending.value = false;
+      fetchInventory()
+        .then(() => {
+          // Explicitly clear any current MOVE selections
+          moveQuantities.value = {};
+        })
+        .catch((e) => console.error('Refresh inventory after move failed:', e));
+    });
 };
+
+ 
 
 const sortData = (key) => {
   if (sortKey.value === key) {
@@ -727,7 +811,7 @@ h1 {
 
 
 .inventory-list {
-  max-height: calc(100vh - 232px);
+  max-height: calc(100vh - 210px);
   overflow-y: auto;
   border-top: 1px solid #555;
   background-color: #333;
@@ -996,7 +1080,7 @@ button:hover {
 
 /* Storages (inline) */
 .storages {
-  padding: 6px 10px;
+  padding: 3px 10px 6px 10px;
   background-color: #222;
   border-top: 1px solid #555;
 }
@@ -1004,7 +1088,7 @@ button:hover {
 .storages-title {
   color: #fff;
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .storages-grid {
@@ -1067,4 +1151,61 @@ button:hover {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
 }
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal-dialog {
+  width: 360px;
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #444;
+  background: #1a1a1a;
+}
+.modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #444;
+  display: flex;
+  justify-content: flex-end;
+  background: #1a1a1a;
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #444;
+  border-top-color: #88aaff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.error-text {
+  color: #ff6b6b;
+  text-align: center;
+}
+.close-modal-btn { padding: 3px 15px; }
 </style>

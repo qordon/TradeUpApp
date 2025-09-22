@@ -202,8 +202,8 @@
     </div>
     
     <!-- Transfer Result Modal -->
-    <div v-if="isTransferModalOpen" class="modal-overlay">
-      <div class="modal-dialog">
+    <div v-if="isTransferModalOpen" class="modal-overlay" @click="onModalOverlayClick">
+      <div class="modal-dialog" @click.stop>
         <div class="modal-header">
           <h3>Moving Items</h3>
         </div>
@@ -495,9 +495,16 @@
     isTransferModalOpen.value = false;
   };
 
+  // Only allow closing the modal by clicking the overlay when not pending
+  const onModalOverlayClick = () => {
+    if (!transferPending.value) {
+      closeTransferModal();
+    }
+  };
+
   const moveSelected = () => {
     if (!selectedStorageId.value) {
-      console.log('No destination storage selected');
+      alert('No destination storage selected');
       return;
     }
     const payload = buildTransferPayload();
@@ -527,7 +534,17 @@
     })
     .finally(() => {
       transferPending.value = false;
+      // Refresh inventory and reset selections after transfer completes
+      // This clears MOVE inputs (via fetchInventory resetting moveQuantities)
+      fetchInventory()
+        .then(() => {
+          // Explicitly clear any current MOVE selections
+          moveQuantities.value = {};
+        })
+        .catch((e) => console.error('Refresh inventory after move failed:', e));
     });
+
+
   };
   
   const sortData = (key) => {
@@ -759,7 +776,7 @@
   
   
   .inventory-list {
-    max-height: calc(100vh - 232px);
+    max-height: calc(100vh - 210px);
     overflow-y: auto;
     border-top: 1px solid #555;
     background-color: #333;
@@ -1028,7 +1045,7 @@
   
   /* Storages (inline) */
   .storages {
-    padding: 6px 10px;
+    padding: 3px 10px 6px 10px;
     background-color: #222;
     border-top: 1px solid #555;
   }
@@ -1036,7 +1053,7 @@
   .storages-title {
     color: #fff;
     font-size: 16px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   
   .storages-grid {
