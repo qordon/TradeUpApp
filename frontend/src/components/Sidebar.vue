@@ -48,7 +48,8 @@
     padding: 5px 20px;
     display: flex;
     flex-direction: column;
-    border-right: white;
+    border-right: 2px solid #555;
+    
   }
   .centered-button {
   display: flex;

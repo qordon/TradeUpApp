@@ -90,7 +90,7 @@
           </div>
         </div>
   
-        <div v-if="isLoading">Loading...</div>
+        <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
   
         <div v-else class="inventory-list">
           <table>
@@ -745,6 +745,7 @@
     padding: 12px 12px;
     background-color: #222;
     border-top: 1px solid white;
+    border-bottom: 1px solid #555;
   }
   
   .filters span {
@@ -778,7 +779,6 @@
   .inventory-list {
     max-height: calc(100vh - 210px);
     overflow-y: auto;
-    border-top: 1px solid #555;
     background-color: #333;
     scrollbar-gutter: stable;
   }
@@ -1047,7 +1047,8 @@
   .storages {
     padding: 3px 10px 6px 10px;
     background-color: #222;
-    border-top: 1px solid #555;
+    /* border-top: 1px solid #555; */
+    border-bottom: 1px solid #555;
   }
   
   .storages-title {

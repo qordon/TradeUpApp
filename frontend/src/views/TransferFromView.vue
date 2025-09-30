@@ -74,8 +74,9 @@
           <div
             v-for="(storage, idx) in storages"
             :key="storage.item_id || idx"
-            :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage) }]"
-            @click="toggleStorage(storage)"
+            :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage), 'storage-card--loading': isStoragePending(storage) }]"
+            @click.stop.prevent="toggleStorage(storage)"
+            @dblclick.prevent
           >
             <div class="storage-thumb">
               <img
@@ -96,7 +97,7 @@
         </div>
       </div>
 
-      <div v-if="isLoading">Loading...</div>
+      <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
 
       <div v-else class="inventory-list">
         <table>
@@ -372,7 +373,7 @@ const fetchInventory = async () => {
     allInventory.value = [...response.data.data].reverse();
     // Save current inventory count for capacity checks (includes Storage Units as items)
     currentInventoryCount.value = Array.isArray(allInventory.value) ? allInventory.value.length : 0;
-
+    console.log(currentInventoryCount.value);
     allInventory.value.forEach((item) => {
       let itemName = item.item_name.replace('StatTrak™ ', '');
       itemName = itemName.replace("Souvenir ", "");
@@ -406,11 +407,25 @@ const selectedStorageIds = ref(new Set());
 const isStorageSelected = (storage) => {
   return selectedStorageIds.value.has(storage.item_id);
 };
+// Track storages currently being fetched to prevent double clicks
+const pendingStorageIds = ref(new Set());
+const isStoragePending = (storage) => pendingStorageIds.value.has(storage.item_id);
+// Non-reactive immediate guard to prevent race conditions on rapid double clicks
+const inFlightStorageIds = new Set();
 
 const toggleStorage = async (storage) => {
   const storageId = storage.item_id;
   const storageName = displayStorageName(storage);
-  
+
+  // Global guard: if a storage load is in progress, ignore further clicks
+  if (isLoading.value) {
+    return;
+  }
+
+  // Prevent double-click while a request for this storage is in-flight
+  if (inFlightStorageIds.has(storageId) || pendingStorageIds.value.has(storageId)) {
+    return;
+  }
   if (selectedStorageIds.value.has(storageId)) {
     // Deselect: remove items from this storage
     items.value = items.value.filter(i => i.__storageId !== storageId);
@@ -422,6 +437,12 @@ const toggleStorage = async (storage) => {
   }
 
   try {
+    // Mark immediately in non-reactive set to avoid race (only for load case)
+    inFlightStorageIds.add(storageId);
+    // Mark this storage as pending to block further clicks
+    const nextPending = new Set(pendingStorageIds.value);
+    nextPending.add(storageId);
+    pendingStorageIds.value = nextPending;
     isLoading.value = true;
     console.log(storageId);
     const response = await axios.get('http://localhost:3000/api/getStorageContents', {
@@ -460,6 +481,11 @@ const toggleStorage = async (storage) => {
   } catch (error) {
     console.error('Error fetching storage contents:', error);
   } finally {
+    // Clear pending flag for this storage
+    const clearPending = new Set(pendingStorageIds.value);
+    clearPending.delete(storageId);
+    pendingStorageIds.value = clearPending;
+    inFlightStorageIds.delete(storageId);
     isLoading.value = false;
   }
 };
@@ -750,7 +776,7 @@ const getRarityStyle = (rarityName) => {
   display: flex;
   justify-content: flex-start;
   max-height: 100vh;
-  border-left: 2px solid #555;
+  border-left: 0px solid #555;
 
 }
 .content {
@@ -779,7 +805,8 @@ h1 {
   gap: 10px;
   padding: 12px 12px;
   background-color: #222;
-  border-top: 1px solid white;
+  border-top: 1px solid #555;
+  border-bottom: 1px solid #555;
 }
 
 .filters span {
@@ -813,7 +840,6 @@ h1 {
 .inventory-list {
   max-height: calc(100vh - 210px);
   overflow-y: auto;
-  border-top: 1px solid #555;
   background-color: #333;
   scrollbar-gutter: stable;
 }
@@ -1082,7 +1108,8 @@ button:hover {
 .storages {
   padding: 3px 10px 6px 10px;
   background-color: #222;
-  border-top: 1px solid #555;
+  /* border-top: 1px solid #555; */
+  border-bottom: 1px solid #555;
 }
 
 .storages-title {
@@ -1114,6 +1141,12 @@ button:hover {
   border-color: #82b1ff;
   box-shadow: 0 0 0 1px #82b1ff inset;
   background-color: #2c2c2c;
+}
+
+/* Loading state: disable interactions and dim */
+.storage-card--loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .storage-thumb {
