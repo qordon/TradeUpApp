@@ -59,7 +59,6 @@ app.get('/api/inventory', async (req, res) => {
 app.get('/api/getStorageContents', async (req, res) => {
   try{
     const casketId = req.query.casketId;
-    console.log(casketId);
     const casketContents = await new Promise((resolve, reject) => {
       try {
         SteamSession.getCasketContents(casketId, (err, items) => {
@@ -70,14 +69,12 @@ app.get('/api/getStorageContents', async (req, res) => {
         reject(e);
       }
     });
-    console.log(casketContents);
     // SteamSession.saveInventoryToFile();
     // const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
     try {
       // const data = fs.readFileSync(inventoryPath, 'utf8');
       // const inventory = JSON.parse(data);
       let convertedInventory = csgo_items.inventoryConverter(casketContents, isCasket=true);
-      console.log(convertedInventory);
       // convertedInventory = convertedInventory.filter(item => item.casket_id === casketId);
       return res.status(200).json({ message: 'Successful login', data: convertedInventory });
     } catch (err) {

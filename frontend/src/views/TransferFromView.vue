@@ -8,23 +8,13 @@
         <span @click="clearFilters">Clear Filters</span> |
         <span @click="toggleFilters">Options<span v-if="isFilterApplied">*</span></span> |
         <input type="text" v-model="searchQuery" placeholder="Search Items" /> |
-        <!-- <button class="group-toggle-btn" :class="{ active: groupAll }" @click="toggleGroupAll">
-          {{ groupAll ? 'UNGROUP' : 'GROUP' }}
-        </button> | -->
         <span @click="toggleGroupAll" class="group-toggle-btn" :class="{ active: groupAll }">{{ groupAll ? 'UNGROUP' : 'GROUP' }}</span> |
         <span>
           {{ selectedCount }} items
           <img src="@/assets/images/exchange.png" alt="Selected" class="action-icon small-icon"/>
         </span> | 
-        <!-- <button class="move-selected-btn" @click="moveSelected">
-          EXTRACT
-        </button> -->
         <span @click="moveSelected" class="move-selected-btn">EXTRACT</span>
        
-        
-        <!-- <span class="float-selector-button" @click="openFloatPrompt">
-          <img src="@/assets/images/magic-wand.png" alt="Float Selector" class="float-selector-icon"/>
-        </span> -->
       </div>
 
       <div v-if="showFilters" class="filter-menu">
@@ -67,39 +57,38 @@
         </div>
       </div>
 
-      <!-- Storages Section (inline) -->
-      <div v-if="storages.length" class="storages">
-        <h2 class="storages-title">Storages</h2>
-        <div class="storages-grid">
-          <div
-            v-for="(storage, idx) in storages"
-            :key="storage.item_id || idx"
-            :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage), 'storage-card--loading': isStoragePending(storage) }]"
-            @click.stop.prevent="toggleStorage(storage)"
-            @dblclick.prevent
-          >
-            <div class="storage-thumb">
-              <img
-                class="storage-image"
-                src="https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJG51EejH_XV0MGkITXE5AB094KtuwG0Exv1yMfkqXcCtvT_MPw5JPTKV2bDk7Z3sudtHSjr2w0ptCMWPT2u/330x192?allow_animated=1"
-                alt="Storage Unit"
-              />
-            </div>
-            <div class="storage-info">
-              <div class="storage-name" :title="displayStorageName(storage)">
-                {{ displayStorageName(storage) }}
+      <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
+
+      <div v-else class="inventory-list">
+        <!-- Storages Section moved inside the single scroll container -->
+        <div v-if="storages.length" class="storages">
+          <h2 class="storages-title">Storages</h2>
+          <div class="storages-grid">
+            <div
+              v-for="(storage, idx) in storages"
+              :key="storage.item_id || idx"
+              :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage), 'storage-card--loading': isStoragePending(storage) }]"
+              @click.stop.prevent="toggleStorage(storage)"
+              @dblclick.prevent
+            >
+              <div class="storage-thumb">
+                <img
+                  class="storage-image"
+                  src="https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJG51EejH_XV0MGkITXE5AB094KtuwG0Exv1yMfkqXcCtvT_MPw5JPTKV2bDk7Z3sudtHSjr2w0ptCMWPT2u/330x192?allow_animated=1"
+                  alt="Storage Unit"
+                />
               </div>
-              <div class="storage-count">
-                {{ storage.item_storage_total ?? 0 }} items
+              <div class="storage-info">
+                <div class="storage-name" :title="displayStorageName(storage)">
+                  {{ displayStorageName(storage) }}
+                </div>
+                <div class="storage-count">
+                  {{ storage.item_storage_total ?? 0 }} items
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
-
-      <div v-else class="inventory-list">
         <table>
           <thead>
             <tr style="padding-left: 5px;">
@@ -133,10 +122,14 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th style="width: 6%">QTY</th>
+              <th @click="sortData('qty')" style="width: 6%; white-space: nowrap;">
+                QTY
+                <span v-if="sortKey === 'qty'" style="margin-left: 4px; display: inline-block;">
+                  {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
+                </span>
+              </th>
               <th style="width: 8%">MOVE</th>
               <th>MAX</th>
-              <!-- <th style="width: 5.5%">ADD</th> -->
             </tr>
           </thead>
           <tbody class="scrollable-body">
@@ -190,11 +183,6 @@
                   </button>
                 </div>
               </td>
-              <!-- <td>
-                <button @click="onMoveClick(item)" title="Move selected quantity">
-                  <img src="@/assets/images/hand-tools.png" alt="Move" class="action-icon"/>
-                </button>
-              </td> -->
             </tr>
           </tbody>
         </table>
@@ -236,10 +224,6 @@ import { tradeUps } from '../models/tradeUps';
 const router = useRouter();
 const items = ref([]);
 const allInventory = ref([]); // holds full inventory for listing storages
-const isModalOpen = ref(false);
-const isRouletteWheelOpen = ref(false);
-const tradeUpOutcome = ref(null);
-
 const isLoading = ref(true);
 // Inventory capacity restriction (Steam max 1000 items in inventory)
 const INVENTORY_LIMIT = 1000;
@@ -248,8 +232,6 @@ const sortOrder = ref('default');
 const sortKey = ref('item_name');
 const searchQuery = ref('');
 const activeItem = ref(null);
-const itemsToTradeUp = ref([]);
-const outcomes = ref([]);
 
 const showFilters = ref(false);
 const selectedRarities = ref([]);
@@ -321,36 +303,6 @@ const isGroupable = (item) => {
   return name.includes('sticker') || name.includes('souvenir package') || name.includes('case');
 };
 
-const groupedItems = computed(() => {
-  const map = new Map();
-  for (const it of items.value) {
-    const groupable = isGroupable(it);
-    const storageKey = it.__storageId ?? 'inv';
-    const nameKey = it.item_name || '';
-    const key = groupable ? `${storageKey}|${nameKey}` : (it.item_id || `${storageKey}|${nameKey}|${Math.random()}`);
-
-    if (groupable) {
-      if (!map.has(key)) {
-        const rep = { ...it };
-        rep.qty = 1;
-        rep.__rowKey = key;
-        rep.__isGrouped = true;
-        map.set(key, rep);
-        // Do not auto-select; leave moveQuantities undefined until user types
-      } else {
-        const rep = map.get(key);
-        rep.qty += 1;
-      }
-    } else {
-      const repKey = it.item_id || key;
-      const rep = { ...it, qty: 1, __rowKey: repKey, __isGrouped: false };
-      map.set(repKey, rep);
-      // Do not auto-select; leave moveQuantities undefined until user types
-    }
-  }
-  return Array.from(map.values());
-});
-
 onMounted(async () => {
   try{
     const response = await axios.get('http://localhost:3000/api/check');
@@ -373,7 +325,7 @@ const fetchInventory = async () => {
     allInventory.value = [...response.data.data].reverse();
     // Save current inventory count for capacity checks (includes Storage Units as items)
     currentInventoryCount.value = Array.isArray(allInventory.value) ? allInventory.value.length : 0;
-    console.log(currentInventoryCount.value);
+
     allInventory.value.forEach((item) => {
       let itemName = item.item_name.replace('StatTrak™ ', '');
       itemName = itemName.replace("Souvenir ", "");
@@ -387,9 +339,6 @@ const fetchInventory = async () => {
       }
       catch (error) {
         item.imageURL = "";
-      }
-      if (itemName == "Storage Unit"){
-        console.log(item);
       }
       
     });
@@ -444,11 +393,9 @@ const toggleStorage = async (storage) => {
     nextPending.add(storageId);
     pendingStorageIds.value = nextPending;
     isLoading.value = true;
-    console.log(storageId);
     const response = await axios.get('http://localhost:3000/api/getStorageContents', {
           params: { casketId: storageId }
     });
-    console.log(response);
     const storageItems = Array.isArray(response.data?.data) ? response.data.data : [];
     // If API returns casket_id, use it to filter; otherwise, use all items (they belong to this casket by context)
     const hasCasketField = storageItems.some((it) => it && it.casket_id != null);
@@ -501,14 +448,6 @@ const clearFilters = () => {
   selectedStatTrak.value = [];
   selectedWearNames.value = [];
   selectedCollections.value = [];
-};
-
-// Placeholder: move items from storage to inventory (single row) - to be implemented later
-const onMoveClick = (row) => {
-  const key = row.__rowKey;
-  const qty = Math.max(1, Math.min(Number(moveQuantities.value[key] || 1), Number(row.qty || 1)));
-  console.log('Move requested:', { storageId: row.__storageId, item_name: row.item_name, qty, row });
-  // TODO: implement backend call to transfer items from storage
 };
 
 // Click on MAX column: set the MOVE input to the maximum allowed respecting capacity
@@ -765,9 +704,6 @@ const getRarityStyle = (rarityName) => {
 };
 
 
-
-
-
 </script>
 
 <style scoped>
@@ -838,7 +774,7 @@ h1 {
 
 
 .inventory-list {
-  max-height: calc(100vh - 210px);
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
   background-color: #333;
   scrollbar-gutter: stable;
@@ -887,15 +823,12 @@ td:not(:first-child) {
 th {
   background-color: #222;
   color: white;
-  cursor: pointer;
   top: 0; 
   z-index: 1; 
 }
 tbody {
-
-  max-height: 50vh;
-  overflow-y: auto; 
   border: none;
+  overflow-y: hidden;
 }
 td {
   background-color: #333;

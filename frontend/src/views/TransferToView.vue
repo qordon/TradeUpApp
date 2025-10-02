@@ -14,11 +14,6 @@
             <img src="@/assets/images/exchange.png" alt="Selected" class="action-icon small-icon"/>
           </span> | 
           <span @click="moveSelected" class="move-selected-btn">MOVE</span>
-         
-          
-          <!-- <span class="float-selector-button" @click="openFloatPrompt">
-            <img src="@/assets/images/magic-wand.png" alt="Float Selector" class="float-selector-icon"/>
-          </span> -->
         </div>
   
         <div v-if="showFilters" class="filter-menu">
@@ -54,45 +49,41 @@
             <h3>Collection</h3>
             <div class="collections-filters-list">
               <label v-for="collection in collections" :key="collection">
-                <input type="checkbox" v-model="selectedCollections" :value="collection" />
                 {{ collection }}
               </label>
             </div>
           </div>
         </div>
+        <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
   
-        <!-- Storages Section (inline) -->
-        <div v-if="storages.length" class="storages">
-          <h2 class="storages-title">Storages</h2>
-          <div class="storages-grid">
-            <div
-              v-for="(storage, idx) in storages"
-              :key="storage.item_id || idx"
-              :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage) }]"
-              @click="toggleStorage(storage)"
-            >
-              <div class="storage-thumb">
-                <img
-                  class="storage-image"
-                  src="https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJG51EejH_XV0MGkITXE5AB094KtuwG0Exv1yMfkqXcCtvT_MPw5JPTKV2bDk7Z3sudtHSjr2w0ptCMWPT2u/330x192?allow_animated=1"
-                  alt="Storage Unit"
-                />
-              </div>
-              <div class="storage-info">
-                <div class="storage-name" :title="displayStorageName(storage)">
-                  {{ displayStorageName(storage) }}
+        <div v-else class="inventory-list">
+          <div v-if="storages.length" class="storages">
+            <h2 class="storages-title">Storages</h2>
+            <div class="storages-grid">
+              <div
+                v-for="(storage, idx) in storages"
+                :key="storage.item_id || idx"
+                :class="['storage-card', { 'storage-card--selected': isStorageSelected(storage) }]"
+                @click="toggleStorage(storage)"
+              >
+                <div class="storage-thumb">
+                  <img
+                    class="storage-image"
+                    src="https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJG51EejH_XV0MGkITXE5AB094KtuwG0Exv1yMfkqXcCtvT_MPw5JPTKV2bDk7Z3sudtHSjr2w0ptCMWPT2u/330x192?allow_animated=1"
+                    alt="Storage Unit"
+                  />
                 </div>
-                <div class="storage-count">
-                  {{ storage.item_storage_total ?? 0 }} items
+                <div class="storage-info">
+                  <div class="storage-name" :title="displayStorageName(storage)">
+                    {{ displayStorageName(storage) }}
+                  </div>
+                  <div class="storage-count">
+                    {{ storage.item_storage_total ?? 0 }} items
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-  
-        <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
-  
-        <div v-else class="inventory-list">
           <table>
             <thead>
               <tr style="padding-left: 5px;">
@@ -120,16 +111,14 @@
                     {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                   </span>
                 </th>
-                <!-- <th @click="sortData('__storageName')" style="width: 15%">
-                  STORAGE
-                  <span v-if="sortKey === '__storageName'">
+                <th @click="sortData('qty')" style="width: 6%; white-space: nowrap;">
+                  QTY
+                  <span v-if="sortKey === 'qty'" style="margin-left: 4px; display: inline-block;">
                     {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                   </span>
-                </th> -->
-                <th style="width: 6%">QTY</th>
+                </th>
                 <th style="width: 8%">MOVE</th>
                 <th style="width: 6%">MAX</th>
-                <!-- <th style="width: 5.5%">ADD</th> -->
               </tr>
             </thead>
             <tbody class="scrollable-body">
@@ -160,7 +149,6 @@
                     </div>
                   </div>
                 </td>
-                <!-- <td>{{ item.__storageName || '' }}</td> -->
                 <td>{{ item.qty || 1 }}</td>
                 <td>
                   <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -187,12 +175,7 @@
                     </button>
                   </div>
                 </td>
-                
-                <!-- <td>
-                  <button @click="onMoveClick(item)" title="Move selected quantity">
-                    <img src="@/assets/images/hand-tools.png" alt="Move" class="action-icon"/>
-                  </button>
-                </td> -->
+              
               </tr>
             </tbody>
           </table>
@@ -234,17 +217,12 @@
   const router = useRouter();
   const items = ref([]);
   const allInventory = ref([]); // holds full inventory for listing storages
-  const isModalOpen = ref(false);
-  const isRouletteWheelOpen = ref(false);
-  const tradeUpOutcome = ref(null);
   
   const isLoading = ref(true);
   const sortOrder = ref('default');
   const sortKey = ref('item_name');
   const searchQuery = ref('');
   const activeItem = ref(null);
-  const itemsToTradeUp = ref([]);
-  const outcomes = ref([]);
   
   const showFilters = ref(false);
   const selectedRarities = ref([]);
@@ -314,37 +292,7 @@
     const name = (item?.item_name || '').toLowerCase();
     return name.includes('sticker') || name.includes('souvenir package') || name.includes('case');
   };
-  
-  const groupedItems = computed(() => {
-    const map = new Map();
-    for (const it of items.value) {
-      const groupable = isGroupable(it);
-      const storageKey = it.__storageId ?? 'inv';
-      const nameKey = it.item_name || '';
-      const key = groupable ? `${storageKey}|${nameKey}` : (it.item_id || `${storageKey}|${nameKey}|${Math.random()}`);
-
-      if (groupable) {
-        if (!map.has(key)) {
-          const rep = { ...it };
-          rep.qty = 1;
-          rep.__rowKey = key;
-          rep.__isGrouped = true;
-          map.set(key, rep);
-          // Do not auto-select; leave moveQuantities undefined until user types
-        } else {
-          const rep = map.get(key);
-          rep.qty += 1;
-        }
-      } else {
-        const repKey = it.item_id || key;
-        const rep = { ...it, qty: 1, __rowKey: repKey, __isGrouped: false };
-        map.set(repKey, rep);
-        // Do not auto-select; leave moveQuantities undefined until user types
-      }
-    }
-    return Array.from(map.values());
-  });
-  
+    
   onMounted(async () => {
     try{
       const response = await axios.get('http://localhost:3000/api/check');
@@ -365,7 +313,6 @@
       isLoading.value = true;
       const response = await axios.get('http://localhost:3000/api/inventory');
       allInventory.value = [...response.data.data].reverse();
-      console.log(allInventory);
       allInventory.value.forEach((item) => {
         let itemName = item.item_name.replace('StatTrak™ ', '');
         itemName = itemName.replace("Souvenir ", "");
@@ -379,11 +326,7 @@
         }
         catch (error) {
           item.imageURL = "";
-        }
-        if (itemName == "Storage Unit"){
-          console.log(item);
-        }
-        
+        }        
       });
 
       // For TransferTo, show inventory items that are movable only
@@ -428,15 +371,7 @@
     selectedWearNames.value = [];
     selectedCollections.value = [];
   };
-  
-  // Placeholder: move items from storage to inventory (single row) - to be implemented later
-  const onMoveClick = (row) => {
-    const key = row.__rowKey;
-    const qty = Math.max(1, Math.min(Number(moveQuantities.value[key] || 1), Number(row.qty || 1)));
-    console.log('Move requested:', { storageId: row.__storageId, item_name: row.item_name, qty, row });
-    // TODO: implement backend call to transfer items from storage
-  };
-  
+    
   // Click on ADD column: set the MOVE input to max available for that row
   // Capacity-aware max fill for a row
   const onMaxClick = (row) => {
@@ -703,10 +638,6 @@
     return { backgroundColor: color };
   };
   
-  
-  
-  
-  
   </script>
   
   <style scoped>
@@ -777,7 +708,7 @@
   
   
   .inventory-list {
-    max-height: calc(100vh - 210px);
+    max-height: calc(100vh - 100px);
     overflow-y: auto;
     background-color: #333;
     scrollbar-gutter: stable;
@@ -786,54 +717,40 @@
   .inventory-list::-webkit-scrollbar {
     width: 8px;
   }
-  
   .inventory-list::-webkit-scrollbar-track {
     background: transparent;
   }
-  
   .inventory-list::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.4);
     border-radius: 4px;
   }
-  
-  .inventory-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.6);
-  }
-  
-  
+
   table {
     width: 100%;
-    border: none;
     border-collapse: collapse;
     background-color: #444;
-    
   }
-  
-  
+
   th, td {
     padding: 8px 10px;
     text-align: left;
-    border-bottom: 1px solid #555;
     border: none;
   }
-  
+
   th:not(:first-child),
   td:not(:first-child) {
     text-align: center;
   }
-  
+
   th {
     background-color: #222;
     color: white;
     cursor: pointer;
-    top: 0; 
-    z-index: 1; 
+    top: 0;
+    z-index: 1;
   }
   tbody {
-  
-    max-height: 50vh;
-    overflow-y: auto; 
-    border: none;
+    overflow-y: hidden;
   }
   td {
     background-color: #333;
