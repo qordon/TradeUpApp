@@ -6,6 +6,7 @@ This project is an MVP of a web application designed to facilitate trade-up cont
 
 - Calculates possible trade-up outcomes and their float values
 - Saves completed trade-ups in file
+- Transfer items from and to storages
 
 ## Get Started
 
@@ -44,4 +45,5 @@ npm run start
 - Add roulette effect to trade-up ✅
 - Improve calculating system for float values ✅
 - Add logic for items float matching ✅
+- Add storages features ✅
 
