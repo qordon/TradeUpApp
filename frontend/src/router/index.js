@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
-import InventoryView from '@/views/InventoryView.vue'
+import TransferFromView from '@/views/TransferFromView.vue'
 import TradeUpsView from '@/views/TradeUpsView.vue'
+import TransferToView from '@/views/TransferToView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,9 +22,14 @@ const router = createRouter({
       component: TradeUpsView,
     },
     {
-      path: '/inventory',
-      name: 'inventory',
-      component: InventoryView,
+      path: '/transfer-from',
+      name: 'transfer-from',
+      component: TransferFromView,
+    },
+    {
+      path: '/transfer-to',
+      name: 'transfer-to',
+      component: TransferToView,
     }
   ],
 })

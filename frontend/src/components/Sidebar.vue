@@ -1,11 +1,15 @@
 <template>
     <div class="sidebar">
       <h2>TradeUp App</h2>
-      <!-- <button @click="goTo('/inventory')" class="centered-button">
-        <img src="@/assets/inventory.png" alt="Add" class="action-icon"/>Inventory
-      </button> -->
+      
       <button @click="goTo('/tradeups')" class="centered-button">
         <img src="@/assets/images/hand-tools.png" alt="Add" class="action-icon"/> Trade Up
+      </button>
+      <button @click="goTo('/transfer-from')" class="centered-button">
+        <img src="@/assets/images/arrow-from.png" alt="Add" class="action-icon"/>Transfer From
+      </button>
+      <button @click="goTo('/transfer-to')" class="centered-button">
+        <img src="@/assets/images/arrow-to.png" alt="Add" class="action-icon"/>Transfer To
       </button>
       <button @click="logout()" class="centered-button">
         <img src="@/assets/images/logout.png" alt="Add" class="action-icon"/> Logout
@@ -44,7 +48,8 @@
     padding: 5px 20px;
     display: flex;
     flex-direction: column;
-    border-right: white;
+    border-right: 2px solid #555;
+    
   }
   .centered-button {
   display: flex;

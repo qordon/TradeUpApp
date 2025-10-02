@@ -82,8 +82,6 @@ async function updateItems(items) {
       'alternate_icons2'
     )['casket_icons'];
 
-    console.log(dict_to_write['items'][1209]);
-
     items.setCSGOItems(dict_to_write);
   } catch (err) {
     console.log('Error occurred during items parsing:', err);
