@@ -143,9 +143,9 @@
                 </td>
                 <td>{{ cleanCollectionName(item.collection) }}</td>
                 <td>
-                  <div v-if="item.stickers.length > 0" class="stickers-images">
+                  <div v-if="(!item.__isGrouped || item.qty <= 1) && item.stickers.length > 0" class="stickers-images">
                     <div v-for="(sticker, idx) in item.stickers" :key="idx" class="sticker-container">
-                      <img :src="sticker.url" alt="s" class="sticker-image"/>
+                      <img :src="sticker.stickerImageUrl" alt="s" class="sticker-image"/>
                     </div>
                   </div>
                 </td>
@@ -163,7 +163,6 @@
                       @paste="onMovePaste"
                     />
                     <button @click="onMaxClick(item)" title="Fill max">
-                      <!-- <img src="@/assets/images/hand-tools.png" alt="Max" class="action-icon"/> -->
                     </button>
                   </div>
                 </td>
@@ -359,6 +358,7 @@
   const storageUsed = computed(() => selectedStorage.value ? (selectedStorage.value.item_storage_total || 0) : 0);
   
   const toggleGroupAll = () => {
+    moveQuantities.value = {};
     groupAll.value = !groupAll.value;
   };
   const toggleFilters = () => {
@@ -399,27 +399,45 @@
   const selectedCount = computed(() => selectedToMove.value.reduce((sum, x) => sum + x.qty, 0));
   const remainingCapacity = computed(() => Math.max(0, storageCapacityLimit - storageUsed.value - selectedCount.value));
   
-  // Build backend payload: { [storageId]: [itemId, ...] }
   const buildTransferPayload = () => {
     const targetId = selectedStorageId.value;
     const map = {};
     if (!targetId) return map;
+
     const usedIds = new Set();
-    for (const sel of selectedToMove.value) {
-      const desired = sel.qty;
-      // From inventory, pick movable items matching name that aren't already selected
-      const candidates = items.value.filter((it) => {
-        const movable = (typeof it.item_moveable !== 'undefined') ? it.item_moveable : (typeof it.movable !== 'undefined' ? it.movable : true);
-        return movable === true && it.item_name === sel.item_name && !usedIds.has(it.item_id);
-      });
-      const ids = candidates.slice(0, desired).map((it) => it.item_id);
-      ids.forEach(id => usedIds.add(id));
-      if (!map[targetId]) map[targetId] = [];
-      map[targetId].push(...ids);
-    }
+
+    selectedToMove.value.forEach(sel => {
+      if (!sel.row) return;
+      if (sel.qty === 1) {
+        const id = sel.row.item_id;
+        if (id) {
+          if (!map[targetId]) map[targetId] = [];
+          map[targetId].push(id);
+          usedIds.add(id);
+        }
+      } 
+
+      else if (sel.qty > 1) {
+        const desiredQty = sel.qty;
+
+        const candidates = items.value.filter(it =>
+          it.item_name === sel.row.item_name && !usedIds.has(it.item_id)
+        );
+
+        const ids = candidates.slice(0, desiredQty).map(it => it.item_id);
+        ids.forEach(id => usedIds.add(id));
+
+        if (ids.length > 0) {
+          if (!map[targetId]) map[targetId] = [];
+          map[targetId].push(...ids);
+        }
+      }
+    });
+
     return map;
   };
-  
+
+
   // Modal state for transfer
   const isTransferModalOpen = ref(false);
   const transferPending = ref(false);
@@ -443,6 +461,7 @@
       return;
     }
     const payload = buildTransferPayload();
+    console.log(321, payload);
     const targetId = selectedStorageId.value;
     const itemIds = payload[targetId] || [];
     if (!itemIds.length) {
@@ -492,56 +511,88 @@
   };
   
   const sortedItems = computed(() => {
-    let result = [...groupedFilteredItems.value];
-    if (searchQuery.value) {
-      result = result.filter(item => 
-        item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  let result = [...groupedFilteredItems.value];
+
+  // 🔹 Додаємо imageURL для item і для його stickers (якщо є)
+  result = result.map(item => {
+    // Основне зображення предмета
+    const hasImage = item.imageURL && item.imageURL.trim() !== '';
+    const finalImageURL = hasImage
+      ? item.imageURL
+      : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`;
+
+    // 🔹 Якщо є стікери — формуємо для них imageURL
+    let updatedStickers = item.stickers || [];
+    if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+      updatedStickers = updatedStickers.map(sticker => {
+        const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+        const finalStickerURL = hasStickerImage
+          ? sticker.imageURL
+          : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`;
+        return {
+          ...sticker,
+          stickerImageUrl: finalStickerURL,
+        };
+      });
+    }
+
+    return {
+      ...item,
+      imageURL: finalImageURL,
+      stickers: updatedStickers,
+    };
+  });
+
+  // 🔹 Фільтри
+  if (searchQuery.value) {
+    result = result.filter(item =>
+      item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+  }
+
+  if (rarityFilterTradeUp.value) {
+    result = result.filter(item =>
+      item.rarity === rarityFilterTradeUp.value
+    );
+  }
+
+  if (statTrakFilterTradeUp.value) {
+    if (statTrakFilterTradeUp.value === true) {
+      result = result.filter(item =>
+        item.item_name && item.item_name.includes('StatTrak')
+      );
+    } else if (statTrakFilterTradeUp.value === false) {
+      result = result.filter(item =>
+        item.item_name && !item.item_name.includes('StatTrak')
       );
     }
-    if (rarityFilterTradeUp.value){
-      result = result.filter(item => 
-        item.rarity === rarityFilterTradeUp.value);
-    }
-    if (statTrakFilterTradeUp.value){
-      if (statTrakFilterTradeUp.value === true) {
-        result = result.filter(item =>
-          item.item_name && item.item_name.includes('StatTrak')
-        );
-      }
-      else if (statTrakFilterTradeUp.value === false) {
-        result = result.filter(item =>
-          item.item_name && !item.item_name.includes('StatTrak')
-        );
-      }
-    }
-    if (sortOrder.value === 'default') {
-      return result;
-    }
-  
-    result.sort((a, b) => {
-      let aValue = a[sortKey.value];
-      let bValue = b[sortKey.value];
-  
-      if (sortKey.value === '__storageName') {
-        aValue = (a.__storageName || '').toLowerCase();
-        bValue = (b.__storageName || '').toLowerCase();
-      }
-      if (sortKey.value === 'stickers') {
-        aValue = a.stickers.length;
-        bValue = b.stickers.length;
-      }
-  
-      if (aValue < bValue) {
-        return sortOrder.value === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortOrder.value === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-    
+  }
+
+  if (sortOrder.value === 'default') {
     return result;
+  }
+
+  // 🔹 Інакше — сортування
+  result.sort((a, b) => {
+    let aValue = a[sortKey.value];
+    let bValue = b[sortKey.value];
+
+    if (sortKey.value === '__storageName') {
+      aValue = (a.__storageName || '').toLowerCase();
+      bValue = (b.__storageName || '').toLowerCase();
+    }
+    if (sortKey.value === 'stickers') {
+      aValue = a.stickers.length;
+      bValue = b.stickers.length;
+    }
+
+    if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
+    return 0;
   });
+
+  return result;
+});
   
   const filteredItems = computed(() => {
     return items.value.filter(item => {
@@ -823,7 +874,6 @@
     height: 18px;
     filter: invert(1);
   }
-  
   .float-selector-button:hover .float-selector-icon {
     filter: invert(1) brightness(1.2);
   }
@@ -841,30 +891,24 @@
   }
   .stickers-images {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap; /* single row */
+    align-items: center;
+    justify-content: center; /* center horizontally */
+    width: 100%;
   }
-  
+
   .sticker-container {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
   }
-  
-  
-  .filter-menu {
-    position: absolute;
-    background: #333;
-    border: 1px solid white;
-    padding: 10px;
-    display: flex;
-    gap: 20px;
+
+  .sticker-image {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    display: block;
   }
-  
-  .filter-column {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
+
   .collections-filters-list {
     max-height: 150px;
     overflow-y: auto;

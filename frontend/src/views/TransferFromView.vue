@@ -92,44 +92,44 @@
         <table>
           <thead>
             <tr style="padding-left: 5px;">
-              <th @click="sortData('item_name')" style="width: 38%">
+              <th @click="sortData('item_name')" style="width: 42%">
                 ITEM
                 <span v-if="sortKey === 'item_name'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('item_paint_wear')" style="width: 9%">
+              <th @click="sortData('item_paint_wear')" style="width: 8%">
                 FLOAT
                 <span v-if="sortKey === 'item_paint_wear'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('collection')" style="width: 16%">
+              <th @click="sortData('collection')" style="width: 14%">
                 COLLECTION
                 <span v-if="sortKey === 'collection'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('stickers')" style="width: 22%">
+              <th @click="sortData('stickers')" style="width: 12%">
                 STICKERS
                 <span v-if="sortKey === 'stickers'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('__storageName')" style="width: 15%">
+              <th @click="sortData('__storageName')" style="width: 8%">
                 STORAGE
                 <span v-if="sortKey === '__storageName'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('qty')" style="width: 6%; white-space: nowrap;">
+              <th @click="sortData('qty')" style="width: 4%; white-space: nowrap;">
                 QTY
                 <span v-if="sortKey === 'qty'" style="margin-left: 4px; display: inline-block;">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th style="width: 8%">MOVE</th>
-              <th>MAX</th>
+              <th style="width: 6%">MOVE</th>
+              <th style="width: 6%">MAX</th>
             </tr>
           </thead>
           <tbody class="scrollable-body">
@@ -154,9 +154,9 @@
               </td>
               <td>{{ cleanCollectionName(item.collection) }}</td>
               <td>
-                <div v-if="item.stickers.length > 0" class="stickers-images">
+                <div v-if="(!item.__isGrouped || item.qty <= 1) && item.stickers.length > 0" class="stickers-images">
                   <div v-for="(sticker, idx) in item.stickers" :key="idx" class="sticker-container">
-                    <img :src="sticker.url" alt="s" class="sticker-image"/>
+                    <img :src="sticker.stickerImageUrl" alt="s" class="sticker-image"/>
                   </div>
                 </div>
               </td>
@@ -437,6 +437,7 @@ const toggleStorage = async (storage) => {
   }
 };
 const toggleGroupAll = () => {
+  moveQuantities.value = {};
   groupAll.value = !groupAll.value;
 };
 const toggleFilters = () => {
@@ -529,6 +530,15 @@ const moveSelected = () => {
   axios.post('http://localhost:3000/api/transferFromStorage', payload)
     .then((resp) => {
       transferResult.value = resp?.data || { successCount: 0, failedCount: 0 };
+      // Optimistically update UI: remove extracted items from the displayed list
+      const removeSet = new Set(
+        Object.values(payload).flat().map((id) => String(id))
+      );
+      items.value = items.value.filter((it) => !removeSet.has(String(it.item_id)));
+      // Update inventory count locally so capacity checks remain accurate until refresh
+      try {
+        currentInventoryCount.value = Number(currentInventoryCount.value || 0) + removeSet.size;
+      } catch (_) { /* noop */ }
     })
     .catch((err) => {
       console.error('Extract error:', err);
@@ -558,6 +568,31 @@ const sortData = (key) => {
 
 const sortedItems = computed(() => {
   let result = [...groupedFilteredItems.value];
+  // Map image URLs for items and stickers (fallbacks similar to TransferToView)
+  result = result.map(item => {
+    const hasImage = item.imageURL && String(item.imageURL).trim() !== '';
+    const finalImageURL = hasImage
+      ? item.imageURL
+      : (item.item_url
+          ? `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`
+          : (item.imageURL || ''));
+
+    let updatedStickers = Array.isArray(item.stickers) ? item.stickers : [];
+    if (updatedStickers.length > 0) {
+      updatedStickers = updatedStickers.map(sticker => {
+        const existing = sticker.stickerImageUrl && String(sticker.stickerImageUrl).trim() !== '' ? sticker.stickerImageUrl : null;
+        const direct = sticker.imageURL && String(sticker.imageURL).trim() !== '' ? sticker.imageURL : null;
+        const directAlt = sticker.url && String(sticker.url).trim() !== '' ? sticker.url : null;
+        const fallback = sticker.sticker_url
+          ? `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`
+          : null;
+        const finalStickerURL = existing || direct || directAlt || fallback || '';
+        return { ...sticker, stickerImageUrl: finalStickerURL };
+      });
+    }
+
+    return { ...item, imageURL: finalImageURL, stickers: updatedStickers };
+  });
   if (searchQuery.value) {
     result = result.filter(item => 
       item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -825,6 +860,7 @@ th {
   color: white;
   top: 0; 
   z-index: 1; 
+  cursor: pointer;
 }
 tbody {
   border: none;
@@ -918,12 +954,22 @@ button:hover {
 }
 .stickers-images {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap; /* single row */
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .sticker-container {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sticker-image {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  display: block;
 }
 
 
