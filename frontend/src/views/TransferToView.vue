@@ -461,7 +461,6 @@
       return;
     }
     const payload = buildTransferPayload();
-    console.log(321, payload);
     const targetId = selectedStorageId.value;
     const itemIds = payload[targetId] || [];
     if (!itemIds.length) {

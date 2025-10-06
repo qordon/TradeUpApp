@@ -34,8 +34,6 @@ async function getTranslations(items) {
         finalDict[test[0].replaceAll('"', '').toLowerCase()] = test[1];
       }
     });
-
-    console.log(finalDict['stickerkit_cs20_boost_holo']);
     
     items.setTranslations(finalDict, 'normal');
   } catch (err) {
@@ -101,7 +99,6 @@ class items {
     this.csgoItems = value;
   }
   setTranslations(value, commandFrom) {
-    console.log(commandFrom);
     this.translation = value;
   }
 

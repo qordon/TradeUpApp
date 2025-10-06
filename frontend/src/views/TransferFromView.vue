@@ -192,7 +192,7 @@
   </div>
 
   <!-- Transfer Result Modal -->
-  <div v-if="isTransferModalOpen" class="modal-overlay" @click="closeTransferModal">
+  <div v-if="isTransferModalOpen" class="modal-overlay" @click="onModalOverlayClick">
     <div class="modal-dialog" @click.stop>
       <div class="modal-header">
         <h3>Extracting Items</h3>
@@ -481,21 +481,67 @@ const selectedCount = computed(() => selectedToMove.value.reduce((sum, x) => sum
 const remainingCapacity = computed(() => Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value - selectedCount.value));
 
 // Build backend payload: { [storageId]: [itemId, ...] }
+// const buildTransferPayload = () => {
+//   const map = {};
+//   for (const sel of selectedToMove.value) {
+//     const storageId = sel.storageId;
+//     const desired = sel.qty;
+//     // Find matching individual items for this row
+//     const candidates = items.value.filter((it) =>
+//       String(it.__storageId) === String(storageId) && it.item_name === sel.item_name
+//     );
+//     const ids = candidates.slice(0, desired).map((it) => it.item_id);
+//     if (!map[storageId]) map[storageId] = [];
+//     map[storageId].push(...ids);
+//   }
+//   return map;
+// };
+
+
 const buildTransferPayload = () => {
   const map = {};
-  for (const sel of selectedToMove.value) {
+  const usedIds = new Set();
+
+  selectedToMove.value.forEach(sel => {
     const storageId = sel.storageId;
-    const desired = sel.qty;
-    // Find matching individual items for this row
-    const candidates = items.value.filter((it) =>
-      String(it.__storageId) === String(storageId) && it.item_name === sel.item_name
+    if (!storageId) return;
+
+    const desiredQty = sel.qty || 0;
+    if (desiredQty <= 0) return;
+
+    // If user selected a specific ungrouped row (qty === 1), use its exact item_id like in TransferToView
+    if (
+      desiredQty === 1 &&
+      sel.row &&
+      sel.row.__isGrouped === false &&
+      sel.row.item_id &&
+      !usedIds.has(sel.row.item_id)
+    ) {
+      if (!map[storageId]) map[storageId] = [];
+      map[storageId].push(sel.row.item_id);
+      usedIds.add(sel.row.item_id);
+      return;
+    }
+
+    // Otherwise, pick candidates from the same storage and with the same item_name (no sort-specific checks)
+    const candidates = items.value.filter(it =>
+      String(it.__storageId) === String(storageId) &&
+      it.item_name === sel.item_name &&
+      !usedIds.has(it.item_id)
     );
-    const ids = candidates.slice(0, desired).map((it) => it.item_id);
-    if (!map[storageId]) map[storageId] = [];
-    map[storageId].push(...ids);
-  }
+
+    const ids = candidates.slice(0, desiredQty).map(it => it.item_id);
+    ids.forEach(id => usedIds.add(id));
+
+    if (ids.length > 0) {
+      if (!map[storageId]) map[storageId] = [];
+      map[storageId].push(...ids);
+    }
+  });
+
   return map;
 };
+
 
 // Modal state and extract action
 const isTransferModalOpen = ref(false);
@@ -505,6 +551,12 @@ const transferError = ref(null);
 
 const closeTransferModal = () => {
   isTransferModalOpen.value = false;
+};
+
+const onModalOverlayClick = () => {
+  if (!transferPending.value) {
+    closeTransferModal();
+  }
 };
 
 const moveSelected = () => {
