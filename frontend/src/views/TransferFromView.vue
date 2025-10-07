@@ -36,6 +36,15 @@
             <input type="checkbox" v-model="selectedStatTrak" :value="false" />
             No StatTrak
           </label>
+          <h3>Souvenir</h3>
+          <label>
+            <input type="checkbox" v-model="selectedSouvenir" :value="true" />
+            Souvenir
+          </label>
+          <label>
+            <input type="checkbox" v-model="selectedSouvenir" :value="false" />
+            No Souvenir
+          </label>
         </div>
 
         <div class="filter-column">
@@ -236,6 +245,7 @@ const activeItem = ref(null);
 const showFilters = ref(false);
 const selectedRarities = ref([]);
 const selectedStatTrak = ref([]);
+const selectedSouvenir = ref([]);
 const selectedWearNames = ref([]);
 const selectedCollections = ref([]);
 
@@ -300,7 +310,8 @@ const onMoveInputFrom = (row, e) => {
 const isGroupable = (item) => {
   if (groupAll.value) return true;
   const name = (item?.item_name || '').toLowerCase();
-  return name.includes('sticker') || name.includes('souvenir package') || name.includes('case');
+  return name.includes('sticker') || name.includes('souvenir package') || 
+         name.includes('case') || name.includes('patch');
 };
 
 onMounted(async () => {
@@ -447,6 +458,7 @@ const clearFilters = () => {
   searchQuery.value = '';
   selectedRarities.value = [];
   selectedStatTrak.value = [];
+  selectedSouvenir.value = [];
   selectedWearNames.value = [];
   selectedCollections.value = [];
 };
@@ -700,9 +712,10 @@ const filteredItems = computed(() => {
   return items.value.filter(item => {
     const matchesRarity = selectedRarities.value.length === 0 || selectedRarities.value.includes(item.rarityName);
     const matchesStatTrak = selectedStatTrak.value.length === 0 || selectedStatTrak.value.includes(item.item_name.includes("StatTrak™"));
+    const matchesSouvenir = selectedSouvenir.value.length === 0 || selectedSouvenir.value.includes(item.item_name.includes("Souvenir "));
     const matchesWear = selectedWearNames.value.length === 0 || selectedWearNames.value.includes(item.item_wear_name);
     const matchesCollections = selectedCollections.value.length === 0 || selectedCollections.value.includes(item.collection);
-    return matchesRarity && matchesStatTrak && matchesWear && matchesCollections;
+    return matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections;
   });
 });
 
@@ -711,9 +724,10 @@ const groupedFilteredItems = computed(() => {
   const map = new Map();
   for (const it of filteredItems.value) {
     const groupable = isGroupable(it);
-    const storageKey = it.__storageId ?? 'inv';
+    const storageKey = (it.__storageId != null) ? String(it.__storageId) : 'inv';
     const nameKey = it.item_name || '';
-    const key = groupable ? `${storageKey}|${nameKey}` : (it.item_id || `${storageKey}|${nameKey}|${Math.random()}`);
+    const wearKey = it.item_wear_name || '';
+    const key = groupable ? `${storageKey}|${nameKey}|${wearKey}` : (it.item_id || `${storageKey}|${nameKey}|${wearKey}|${Math.random()}`);
 
     if (groupable) {
       if (!map.has(key)) {
@@ -749,6 +763,7 @@ const isFilterApplied = computed(() => {
   return (
       selectedRarities.value.length > 0 ||
       selectedStatTrak.value.length > 0 ||
+      selectedSouvenir.value.length > 0 ||
       selectedWearNames.value.length > 0 ||
       selectedCollections.value.length > 0 ||
       searchQuery.length > 0

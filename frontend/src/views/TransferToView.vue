@@ -35,6 +35,15 @@
               <input type="checkbox" v-model="selectedStatTrak" :value="false" />
               No StatTrak
             </label>
+            <h3>Souvenir</h3>
+            <label>
+              <input type="checkbox" v-model="selectedSouvenir" :value="true" />
+              Souvenir
+            </label>
+            <label>
+              <input type="checkbox" v-model="selectedSouvenir" :value="false" />
+              No Souvenir
+            </label>
           </div>
   
           <div class="filter-column">
@@ -226,6 +235,7 @@
   const showFilters = ref(false);
   const selectedRarities = ref([]);
   const selectedStatTrak = ref([]);
+  const selectedSouvenir = ref([]);
   const selectedWearNames = ref([]);
   const selectedCollections = ref([]);
   
@@ -368,6 +378,7 @@
     searchQuery.value = '';
     selectedRarities.value = [];
     selectedStatTrak.value = [];
+    selectedSouvenir.value = [];
     selectedWearNames.value = [];
     selectedCollections.value = [];
   };
@@ -421,7 +432,9 @@
         const desiredQty = sel.qty;
 
         const candidates = items.value.filter(it =>
-          it.item_name === sel.row.item_name && !usedIds.has(it.item_id)
+          it.item_name === sel.row.item_name &&
+          it.item_wear_name === sel.row.item_wear_name &&
+          !usedIds.has(it.item_id)
         );
 
         const ids = candidates.slice(0, desiredQty).map(it => it.item_id);
@@ -598,9 +611,10 @@
       const movable = (typeof item.item_moveable !== 'undefined') ? item.item_moveable : (typeof item.movable !== 'undefined' ? item.movable : true);
       const matchesRarity = selectedRarities.value.length === 0 || selectedRarities.value.includes(item.rarityName);
       const matchesStatTrak = selectedStatTrak.value.length === 0 || selectedStatTrak.value.includes(item.item_name.includes("StatTrak™"));
+      const matchesSouvenir = selectedSouvenir.value.length === 0 || selectedSouvenir.value.includes(item.item_name.includes("Souvenir "));
       const matchesWear = selectedWearNames.value.length === 0 || selectedWearNames.value.includes(item.item_wear_name);
       const matchesCollections = selectedCollections.value.length === 0 || selectedCollections.value.includes(item.collection);
-      return movable === true && matchesRarity && matchesStatTrak && matchesWear && matchesCollections;
+      return movable === true && matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections;
     });
   });
   
@@ -611,8 +625,10 @@
       const groupable = isGroupable(it);
       const storageKey = it.__storageId ?? 'inv';
       const nameKey = it.item_name || '';
-      const key = groupable ? `${storageKey}|${nameKey}` : (it.item_id || `${storageKey}|${nameKey}|${Math.random()}`);
-
+      const wearKey = it.item_wear_name || '';
+      const key = groupable
+        ? `${storageKey}|${nameKey}|${wearKey}`
+        : (it.item_id || `${storageKey}|${nameKey}|${wearKey}|${Math.random()}`);
       if (groupable) {
         if (!map.has(key)) {
           const rep = { ...it };
@@ -647,6 +663,7 @@
     return (
         selectedRarities.value.length > 0 ||
         selectedStatTrak.value.length > 0 ||
+        selectedSouvenir.value.length > 0 ||
         selectedWearNames.value.length > 0 ||
         selectedCollections.value.length > 0 ||
         searchQuery.length > 0
@@ -906,6 +923,21 @@
     height: 45px;
     object-fit: contain;
     display: block;
+  }
+
+  .filter-menu {
+    position: absolute;
+    background: #333;
+    border: 1px solid white;
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+  }
+
+  .filter-column {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .collections-filters-list {
