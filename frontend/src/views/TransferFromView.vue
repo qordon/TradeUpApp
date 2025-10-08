@@ -69,7 +69,6 @@
       <div v-if="isLoading" style="padding-left: 5px;">Loading...</div>
 
       <div v-else class="inventory-list">
-        <!-- Storages Section moved inside the single scroll container -->
         <div v-if="storages.length" class="storages">
           <h2 class="storages-title">Storages</h2>
           <div class="storages-grid">
@@ -200,7 +199,6 @@
 
   </div>
 
-  <!-- Transfer Result Modal -->
   <div v-if="isTransferModalOpen" class="modal-overlay" @click="onModalOverlayClick">
     <div class="modal-dialog" @click.stop>
       <div class="modal-header">
@@ -232,7 +230,7 @@ import { tradeUps } from '../models/tradeUps';
 
 const router = useRouter();
 const items = ref([]);
-const allInventory = ref([]); // holds full inventory for listing storages
+const allInventory = ref([]);
 const isLoading = ref(true);
 // Inventory capacity restriction (Steam max 1000 items in inventory)
 const INVENTORY_LIMIT = 1000;
@@ -492,24 +490,6 @@ const selectedCount = computed(() => selectedToMove.value.reduce((sum, x) => sum
 // Remaining capacity for extraction to inventory
 const remainingCapacity = computed(() => Math.max(0, INVENTORY_LIMIT - currentInventoryCount.value - selectedCount.value));
 
-// Build backend payload: { [storageId]: [itemId, ...] }
-// const buildTransferPayload = () => {
-//   const map = {};
-//   for (const sel of selectedToMove.value) {
-//     const storageId = sel.storageId;
-//     const desired = sel.qty;
-//     // Find matching individual items for this row
-//     const candidates = items.value.filter((it) =>
-//       String(it.__storageId) === String(storageId) && it.item_name === sel.item_name
-//     );
-//     const ids = candidates.slice(0, desired).map((it) => it.item_id);
-//     if (!map[storageId]) map[storageId] = [];
-//     map[storageId].push(...ids);
-//   }
-//   return map;
-// };
-
-
 const buildTransferPayload = () => {
   const map = {};
   const usedIds = new Set();
@@ -535,14 +515,21 @@ const buildTransferPayload = () => {
       return;
     }
 
-    // Otherwise, pick candidates from the same storage and with the same item_name (no sort-specific checks)
-    const candidates = items.value.filter(it =>
-      String(it.__storageId) === String(storageId) &&
-      it.item_name === sel.item_name &&
-      !usedIds.has(it.item_id)
-    );
+    // Prefer exact IDs from this grouped row when available
+    let ids = [];
+    if (sel.row.__isGrouped && Array.isArray(sel.row.__ids)) {
+      ids = sel.row.__ids.filter((id) => !usedIds.has(id)).slice(0, desiredQty);
+    } else {
+      // Fallback: pick candidates from the same storage and with the same item name and wear
+      const candidates = items.value.filter(it =>
+        String(it.__storageId) === String(storageId) &&
+        it.item_name === sel.item_name &&
+        it.item_wear_name === sel.row.item_wear_name &&
+        !usedIds.has(it.item_id)
+      );
+      ids = candidates.slice(0, desiredQty).map(it => it.item_id);
+    }
 
-    const ids = candidates.slice(0, desiredQty).map(it => it.item_id);
     ids.forEach(id => usedIds.add(id));
 
     if (ids.length > 0) {
@@ -684,6 +671,19 @@ const sortedItems = computed(() => {
   }
 
   result.sort((a, b) => {
+    if (sortKey.value === 'item_paint_wear') {
+      const aNumRaw = typeof a.item_paint_wear === 'number' ? a.item_paint_wear : parseFloat(a.item_paint_wear);
+      const bNumRaw = typeof b.item_paint_wear === 'number' ? b.item_paint_wear : parseFloat(b.item_paint_wear);
+      const aNum = Number.isFinite(aNumRaw) ? aNumRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      const bNum = Number.isFinite(bNumRaw) ? bNumRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      if (aNum !== bNum) return sortOrder.value === 'asc' ? aNum - bNum : bNum - aNum;
+      // tie-breaker for stability
+      const aName = (a.item_name || '').toLowerCase();
+      const bName = (b.item_name || '').toLowerCase();
+      if (aName < bName) return -1;
+      if (aName > bName) return 1;
+      return 0;
+    }
     let aValue = a[sortKey.value];
     let bValue = b[sortKey.value];
 
@@ -735,11 +735,15 @@ const groupedFilteredItems = computed(() => {
         rep.qty = 1;
         rep.__rowKey = key;
         rep.__isGrouped = true;
+        // Track exact item IDs for this group in stable order
+        rep.__ids = [];
+        if (it.item_id != null) rep.__ids.push(it.item_id);
         map.set(key, rep);
         if (moveQuantities.value[rep.__rowKey] == null) moveQuantities.value[rep.__rowKey] = 0;
       } else {
         const rep = map.get(key);
         rep.qty += 1;
+        if (it.item_id != null && Array.isArray(rep.__ids)) rep.__ids.push(it.item_id);
       }
     } else {
       const repKey = it.item_id || key;
@@ -1112,7 +1116,7 @@ button:hover {
   border: 1px solid #555;
   background-color: #222;
   color: #eee;
-  text-align: center; /* center number inside input */
+  text-align: center;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1121,7 +1125,6 @@ button:hover {
   box-shadow: 0 0 0 2px rgba(136, 170, 255, 0.2);
 }
 
-/* Remove native number spinners */
 .move-input::-webkit-outer-spin-button,
 .move-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1154,7 +1157,6 @@ button:hover {
 .storages {
   padding: 3px 10px 6px 10px;
   background-color: #222;
-  /* border-top: 1px solid #555; */
   border-bottom: 1px solid #555;
 }
 
@@ -1214,7 +1216,7 @@ button:hover {
 .storage-info {
   display: flex;
   flex-direction: column;
-  min-width: 0; /* allow text truncation */
+  min-width: 0;
 }
 
 .storage-name {

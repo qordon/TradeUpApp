@@ -45,18 +45,26 @@ app.get('/api/inventory', async (req, res) => {
   SteamSession.saveInventoryToFile();
   const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
 
+  if (!SteamSession.isSessionActive()) {
+    return res.status(502).json({ message: 'Not connected to Game Coordinator' });
+  }
+  
   try {
     const data = fs.readFileSync(inventoryPath, 'utf8');
     const inventory = JSON.parse(data);
     let convertedInventory = csgo_items.inventoryConverter(inventory);
-    return res.status(200).json({ message: 'Successful login', data: convertedInventory });
+    return res.status(200).json({ message: 'Successful', data: convertedInventory });
   } catch (err) {
     console.error('Error reading or parsing file:', err);
-    return res.status(500).json({ message: 'Login failed', error: err.toString() });
+    return res.status(500).json({ message: 'Error reading or parsing file', 
+      error: err.toString() });
   }
 });
 
 app.get('/api/getStorageContents', async (req, res) => {
+  if (!SteamSession.isSessionActive()) {
+    return res.status(502).json({ message: 'Not connected to Game Coordinator' });
+  }
   try{
     const casketId = req.query.casketId;
     const casketContents = await new Promise((resolve, reject) => {

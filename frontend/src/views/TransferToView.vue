@@ -4,7 +4,7 @@
         <h1>Transfer To</h1> 
   
         <div class="filters">
-          <span @click="fetchInventory">Refresh</span> |
+          <span @click="fetchInventory()">Refresh</span> |
           <span @click="clearFilters">Clear Filters</span> |
           <span @click="toggleFilters">Options<span v-if="isFilterApplied">*</span></span> |
           <input type="text" v-model="searchQuery" placeholder="Search Items" /> |
@@ -192,7 +192,6 @@
   
     </div>
     
-    <!-- Transfer Result Modal -->
     <div v-if="isTransferModalOpen" class="modal-overlay" @click="onModalOverlayClick">
       <div class="modal-dialog" @click.stop>
         <div class="modal-header">
@@ -224,7 +223,7 @@
   
   const router = useRouter();
   const items = ref([]);
-  const allInventory = ref([]); // holds full inventory for listing storages
+  const allInventory = ref([]);
   
   const isLoading = ref(true);
   const sortOrder = ref('default');
@@ -357,7 +356,6 @@
   // Destination storage selection (only one)
   const selectedStorageId = ref(null);
   const isStorageSelected = (storage) => String(selectedStorageId.value) === String(storage.item_id);
-  // ... rest of the code remains the same ...
   const toggleStorage = (storage) => {
     const id = storage.item_id;
     selectedStorageId.value = String(selectedStorageId.value) === String(id) ? null : id;
@@ -431,25 +429,35 @@
       else if (sel.qty > 1) {
         const desiredQty = sel.qty;
 
-        const candidates = items.value.filter(it =>
-          it.item_name === sel.row.item_name &&
-          it.item_wear_name === sel.row.item_wear_name &&
-          !usedIds.has(it.item_id)
-        );
+        let ids = [];
+        if (sel.row.__isGrouped && Array.isArray(sel.row.__ids)) {
+          // Use only the IDs from this grouped row (stable order)
+          ids = sel.row.__ids.filter((id) => !usedIds.has(id)).slice(0, desiredQty);
+        } else {
+          // Fallback: filter from items.value by exact name and wear
+          const candidates = items.value.filter(it =>
+            it.item_name === sel.row.item_name &&
+            it.item_wear_name === sel.row.item_wear_name &&
+            !usedIds.has(it.item_id)
+          );
+          ids = candidates.slice(0, desiredQty).map(it => it.item_id);
+        }
 
-        const ids = candidates.slice(0, desiredQty).map(it => it.item_id);
+        // Mark chosen ids as used and append to payload
         ids.forEach(id => usedIds.add(id));
-
         if (ids.length > 0) {
           if (!map[targetId]) map[targetId] = [];
           map[targetId].push(...ids);
+        } else if (sel.qty > 1) {
+          // No items found to fulfill the desired quantity
+          // Mark the original item as used to prevent re-selection
+          usedIds.add(sel.row.item_id);
         }
       }
     });
 
     return map;
   };
-
 
   // Modal state for transfer
   const isTransferModalOpen = ref(false);
@@ -525,15 +533,12 @@
   const sortedItems = computed(() => {
   let result = [...groupedFilteredItems.value];
 
-  // 🔹 Додаємо imageURL для item і для його stickers (якщо є)
   result = result.map(item => {
-    // Основне зображення предмета
     const hasImage = item.imageURL && item.imageURL.trim() !== '';
     const finalImageURL = hasImage
       ? item.imageURL
       : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`;
 
-    // 🔹 Якщо є стікери — формуємо для них imageURL
     let updatedStickers = item.stickers || [];
     if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
       updatedStickers = updatedStickers.map(sticker => {
@@ -584,8 +589,21 @@
     return result;
   }
 
-  // 🔹 Інакше — сортування
   result.sort((a, b) => {
+
+    if (sortKey.value === 'item_paint_wear') {
+      const aNumRaw = typeof a.item_paint_wear === 'number' ? a.item_paint_wear : parseFloat(a.item_paint_wear);
+      const bNumRaw = typeof b.item_paint_wear === 'number' ? b.item_paint_wear : parseFloat(b.item_paint_wear);
+      const aNum = Number.isFinite(aNumRaw) ? aNumRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      const bNum = Number.isFinite(bNumRaw) ? bNumRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      if (aNum !== bNum) return sortOrder.value === 'asc' ? aNum - bNum : bNum - aNum;
+      // tie-breaker for stability
+      const aName = (a.item_name || '').toLowerCase();
+      const bName = (b.item_name || '').toLowerCase();
+      if (aName < bName) return -1;
+      if (aName > bName) return 1;
+      return 0;
+    }
     let aValue = a[sortKey.value];
     let bValue = b[sortKey.value];
 
@@ -635,11 +653,15 @@
           rep.qty = 1;
           rep.__rowKey = key;
           rep.__isGrouped = true;
+          // Track exact member IDs of this group in stable order
+          rep.__ids = [];
+          if (it.item_id != null) rep.__ids.push(it.item_id);
           map.set(key, rep);
           // Do not auto-select; keep default 0
         } else {
           const rep = map.get(key);
           rep.qty += 1;
+          if (it.item_id != null) rep.__ids.push(it.item_id);
         }
       } else {
         const repKey = it.item_id || key;
@@ -672,7 +694,6 @@
   
   const cleanCollectionName = (name) => {
     if (name) {
-      // Видаляємо "Collection" і "The" з початку та кінця рядка
       return name.replace(/\b(The|Collection)\b/g, '').trim();
     }
     return '';
@@ -907,9 +928,9 @@
   }
   .stickers-images {
     display: flex;
-    flex-wrap: nowrap; /* single row */
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center; /* center horizontally */
+    justify-content: center;
     width: 100%;
   }
 
@@ -989,7 +1010,6 @@
     background-color: #555;
   }
   
-  /* Modern darker input for MOVE */
   .move-input {
     width: 56px;
     padding: 4px 6px;
@@ -997,7 +1017,7 @@
     border: 1px solid #555;
     background-color: #222;
     color: #eee;
-    text-align: center; /* center number inside input */
+    text-align: center;
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
@@ -1006,7 +1026,6 @@
     box-shadow: 0 0 0 2px rgba(136, 170, 255, 0.2);
   }
 
-  /* Remove native number spinners */
   .move-input::-webkit-outer-spin-button,
   .move-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -1017,7 +1036,6 @@
     -moz-appearance: textfield;
   }
   
-  /* Toolbar buttons */
   .move-selected-btn, .group-toggle-btn {
     margin-left: 8px;
     padding: 0px 10px;
@@ -1039,7 +1057,6 @@
   .storages {
     padding: 3px 10px 6px 10px;
     background-color: #222;
-    /* border-top: 1px solid #555; */
     border-bottom: 1px solid #555;
   }
   
@@ -1093,7 +1110,7 @@
   .storage-info {
     display: flex;
     flex-direction: column;
-    min-width: 0; /* allow text truncation */
+    min-width: 0;
   }
   
   .storage-name {

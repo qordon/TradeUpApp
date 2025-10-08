@@ -16,7 +16,15 @@ class SteamSession {
 
   saveInventoryToFile() {
     const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
-    const inventoryData = JSON.stringify(this.csgo.inventory, null, 2);
+
+    if (this.isSessionActive()){
+      const inventoryData = JSON.stringify(this.csgo.inventory, null, 2);
+    }
+    else {
+      
+    }
+
+    
 
     if (!fs.existsSync(path.dirname(inventoryPath))) {
       fs.mkdirSync(path.dirname(inventoryPath), { recursive: true });
@@ -61,7 +69,7 @@ class SteamSession {
     // });
 
     this.csgo.on('itemRemoved', (item) => {
-      console.log('Item removed:', item);
+      // console.log('Item removed:', item);
     });
 
     // this.csgo.on('craftingComplete', (recipe, itemsGained) => {

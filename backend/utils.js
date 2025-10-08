@@ -182,14 +182,14 @@ class items {
       value,
       imageURL,
     ]);
-    if (returnDict['item_name'] == '') {
-      console.log('Error');
-      try {
-        console.log(value, this.get_def_index(value['def_index']));
-      } catch (err) {
-        console.log(value);
-      }
-    }
+    // if (returnDict['item_name'] == '') {
+    //   console.log('Error');
+    //   try {
+    //     console.log(value, this.get_def_index(value['def_index']));
+    //   } catch (err) {
+    //     console.log(value);
+    //   }
+    // }
     returnDict['item_customname'] = value['custom_name'];
     returnDict['item_url'] = imageURL;
     returnDict['item_id'] = value['id'];
