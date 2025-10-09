@@ -53,6 +53,32 @@
               {{ wear }}
             </label>
           </div>
+
+          <div class="filter-column float-group">
+            <h3>Float</h3>
+            <label class="float-field">
+              <span class="float-label">Minimal</span>
+              <input
+                class="float-input"
+                type="text"
+                v-model="minFloatInput"
+                @input="onMinFloatChange"
+                @keydown="onFloatKeyDown"
+                placeholder="0"
+              />
+            </label>
+            <label class="float-field">
+              <span class="float-label">Maximal</span>
+              <input
+                class="float-input"
+                type="text"
+                v-model="maxFloatInput"
+                @input="onMaxFloatChange"
+                @keydown="onFloatKeyDown"
+                placeholder="1"
+              />
+            </label>
+          </div>
   
           <div class="filter-column">
             <h3>Collection</h3>
@@ -216,7 +242,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
   import { tradeUps } from '../models/tradeUps';
@@ -237,6 +263,18 @@
   const selectedSouvenir = ref([]);
   const selectedWearNames = ref([]);
   const selectedCollections = ref([]);
+  // Float filters input (strings to allow typing '.'/',')
+  const minFloatInput = ref('0');
+  const maxFloatInput = ref('1');
+  // Parsed numeric values used for filtering
+  const minFloat = computed(() => {
+    const v = parseSanitizedFloat(minFloatInput.value, 0);
+    return clamp01(v);
+  });
+  const maxFloat = computed(() => {
+    const v = parseSanitizedFloat(maxFloatInput.value, 1);
+    return clamp01(v);
+  });
   
   const rarityFilterTradeUp = ref(null);
   const statTrakFilterTradeUp = ref(null);
@@ -251,6 +289,23 @@
   
   // Move quantities keyed by row key
   const moveQuantities = ref({});
+  // Clear current selections whenever any filter input changes
+  watch(
+    [
+      () => searchQuery.value,
+      () => selectedRarities.value,
+      () => selectedStatTrak.value,
+      () => selectedSouvenir.value,
+      () => selectedWearNames.value,
+      () => selectedCollections.value,
+      () => minFloatInput.value,
+      () => maxFloatInput.value,
+    ],
+    () => {
+      moveQuantities.value = {};
+    },
+    { deep: true }
+  );
   const getMoveQty = (key) => {
     const v = moveQuantities.value[key];
     return (typeof v === 'number' && !isNaN(v)) ? String(v) : "0";
@@ -379,6 +434,8 @@
     selectedSouvenir.value = [];
     selectedWearNames.value = [];
     selectedCollections.value = [];
+    minFloatInput.value = '0';
+    maxFloatInput.value = '1';
   };
     
   // Click on ADD column: set the MOVE input to max available for that row
@@ -632,7 +689,15 @@
       const matchesSouvenir = selectedSouvenir.value.length === 0 || selectedSouvenir.value.includes(item.item_name.includes("Souvenir "));
       const matchesWear = selectedWearNames.value.length === 0 || selectedWearNames.value.includes(item.item_wear_name);
       const matchesCollections = selectedCollections.value.length === 0 || selectedCollections.value.includes(item.collection);
-      return movable === true && matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections;
+      // Float filter 0..1
+      const minF = Number(minFloat.value || 0);
+      const maxF = Number(maxFloat.value || 1);
+      let matchesFloat = true;
+      if (minF > 0 || maxF < 1) {
+        const n = typeof item.item_paint_wear === 'number' ? item.item_paint_wear : parseFloat(item.item_paint_wear);
+        matchesFloat = Number.isFinite(n) && n >= minF && n <= maxF;
+      }
+      return movable === true && matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections && matchesFloat;
     });
   });
   
@@ -688,7 +753,8 @@
         selectedSouvenir.value.length > 0 ||
         selectedWearNames.value.length > 0 ||
         selectedCollections.value.length > 0 ||
-        searchQuery.length > 0
+        searchQuery.length > 0 ||
+        Number(minFloat.value) > 0 || Number(maxFloat.value) < 1
       );
   });
   
@@ -724,6 +790,39 @@
         color = '#999';
     }
     return { backgroundColor: color };
+  };
+
+  // Float inputs: helpers, parsing and input handlers
+  const clamp01 = (n) => Math.min(1, Math.max(0, Number(n)));
+  const sanitizeFloatString = (raw) => {
+    if (raw == null) return '';
+    let s = String(raw).replace(',', '.');
+    // Keep digits and dots only
+    s = s.replace(/[^0-9.]/g, '');
+    // Allow only one dot
+    const firstDot = s.indexOf('.');
+    if (firstDot !== -1) {
+      s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, '');
+    }
+    return s;
+  };
+  const parseSanitizedFloat = (raw, fallback) => {
+    const s = sanitizeFloatString(raw);
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const onFloatKeyDown = (e) => {
+    const allowedKeys = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End'];
+    if (allowedKeys.includes(e.key)) return;
+    if (e.key === '.' || e.key === ',') return;
+    if (/^\d$/.test(e.key)) return;
+    e.preventDefault();
+  };
+  const onMinFloatChange = (e) => {
+    minFloatInput.value = sanitizeFloatString(e.target.value);
+  };
+  const onMaxFloatChange = (e) => {
+    maxFloatInput.value = sanitizeFloatString(e.target.value);
   };
   
   </script>
@@ -973,6 +1072,35 @@
   }
   .collections-filters-list::-webkit-scrollbar {
     width: 8px;
+  }
+
+  /* Float filter styling to match inputs */
+  .float-group {
+    gap: 8px;
+  }
+  .float-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .float-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .float-input {
+    padding: 4px 8px;
+    border: none;
+    border-bottom: 1px solid #555;
+    background-color: transparent;
+    color: #ddd;
+    outline: none;
+    width: 120px;
+  }
+  .float-input::placeholder {
+    color: #888;
+  }
+  .float-input:focus {
+    border-bottom-color: #aaa;
   }
   
   .collections-filters-list::-webkit-scrollbar-track {

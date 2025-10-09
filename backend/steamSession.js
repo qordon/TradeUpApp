@@ -17,14 +17,8 @@ class SteamSession {
   saveInventoryToFile() {
     const inventoryPath = path.join(__dirname, 'data', 'inventory_js.json');
 
-    if (this.isSessionActive()){
-      const inventoryData = JSON.stringify(this.csgo.inventory, null, 2);
-    }
-    else {
-      
-    }
+    const inventoryData = JSON.stringify(this.csgo.inventory, null, 2);
 
-    
 
     if (!fs.existsSync(path.dirname(inventoryPath))) {
       fs.mkdirSync(path.dirname(inventoryPath), { recursive: true });
