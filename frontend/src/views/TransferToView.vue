@@ -375,7 +375,6 @@
       isLoading.value = true;
       const response = await axios.get('http://localhost:3000/api/inventory');
       allInventory.value = [...response.data.data].reverse();
-      console.log(allInventory.value);
       allInventory.value.forEach((item) => {
         let itemName = item.item_name.replace('StatTrak™ ', '');
         itemName = itemName.replace("Souvenir ", "");
@@ -818,8 +817,7 @@
     }
     else if (type === 'max') {
       maxFloatInput.value = sanitizeFloatString(e.target.value);
-    }
-    
+    }   
   };
 
   
