@@ -63,8 +63,7 @@
               class="float-input"
               type="text"
               v-model="minFloatInput"
-              @input="onMinFloatChange"
-              @keydown="onFloatKeyDown"
+              @input="onFloatFilterChange('min', $event)"
               placeholder="0"
             />
           </label>
@@ -74,8 +73,7 @@
               class="float-input"
               type="text"
               v-model="maxFloatInput"
-              @input="onMaxFloatChange"
-              @keydown="onFloatKeyDown"
+              @input="onFloatFilterChange('max', $event)"
               placeholder="1"
             />
           </label>
@@ -295,15 +293,16 @@ const parseSanitizedFloat = (raw, fallback) => {
 };
 const minFloat = computed(() => clamp01(parseSanitizedFloat(minFloatInput.value, 0)));
 const maxFloat = computed(() => clamp01(parseSanitizedFloat(maxFloatInput.value, 1)));
-const onFloatKeyDown = (e) => {
-  const allowedKeys = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End'];
-  if (allowedKeys.includes(e.key)) return;
-  if (e.key === '.' || e.key === ',') return;
-  if (/^\d$/.test(e.key)) return;
-  e.preventDefault();
-};
-const onMinFloatChange = (e) => { minFloatInput.value = sanitizeFloatString(e.target.value); };
-const onMaxFloatChange = (e) => { maxFloatInput.value = sanitizeFloatString(e.target.value); };
+
+
+const onFloatFilterChange = (type, e) => {
+    if (type === 'min'){
+      minFloatInput.value = sanitizeFloatString(e.target.value);
+    }
+    else if (type === 'max') {
+      maxFloatInput.value = sanitizeFloatString(e.target.value);
+    }   
+  };
 
 const rarityFilterTradeUp = ref(null);
 const statTrakFilterTradeUp = ref(null);

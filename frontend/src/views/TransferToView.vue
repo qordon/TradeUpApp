@@ -62,8 +62,7 @@
                 class="float-input"
                 type="text"
                 v-model="minFloatInput"
-                @input="onMinFloatChange"
-                @keydown="onFloatKeyDown"
+                @input="onFloatFilterChange('min', $event)"
                 placeholder="0"
               />
             </label>
@@ -73,8 +72,7 @@
                 class="float-input"
                 type="text"
                 v-model="maxFloatInput"
-                @input="onMaxFloatChange"
-                @keydown="onFloatKeyDown"
+                @input="onFloatFilterChange('max', $event)"
                 placeholder="1"
               />
             </label>
@@ -84,6 +82,7 @@
             <h3>Collection</h3>
             <div class="collections-filters-list">
               <label v-for="collection in collections" :key="collection">
+                <input type="checkbox" v-model="selectedCollections" :value="collection" />
                 {{ collection }}
               </label>
             </div>
@@ -376,6 +375,7 @@
       isLoading.value = true;
       const response = await axios.get('http://localhost:3000/api/inventory');
       allInventory.value = [...response.data.data].reverse();
+      console.log(allInventory.value);
       allInventory.value.forEach((item) => {
         let itemName = item.item_name.replace('StatTrak™ ', '');
         itemName = itemName.replace("Souvenir ", "");
@@ -811,19 +811,17 @@
     const n = parseFloat(s);
     return Number.isFinite(n) ? n : fallback;
   };
-  const onFloatKeyDown = (e) => {
-    const allowedKeys = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End'];
-    if (allowedKeys.includes(e.key)) return;
-    if (e.key === '.' || e.key === ',') return;
-    if (/^\d$/.test(e.key)) return;
-    e.preventDefault();
+
+  const onFloatFilterChange = (type, e) => {
+    if (type === 'min'){
+      minFloatInput.value = sanitizeFloatString(e.target.value);
+    }
+    else if (type === 'max') {
+      maxFloatInput.value = sanitizeFloatString(e.target.value);
+    }
+    
   };
-  const onMinFloatChange = (e) => {
-    minFloatInput.value = sanitizeFloatString(e.target.value);
-  };
-  const onMaxFloatChange = (e) => {
-    maxFloatInput.value = sanitizeFloatString(e.target.value);
-  };
+
   
   </script>
   

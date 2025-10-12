@@ -2,12 +2,13 @@
     <div class="login-container">
       <h2 class="title">Connect from browser</h2>
       <p class="description">
-        Open the URL by clicking on the button. 
-        You should be logged into the account you wish to connect TradeUp App with. 
+        Finish your steam session on desktop. <br>
+        Open the URL by clicking on the button. <br>
+        You should be logged into the account you wish to connect TradeUp App with.<br>
         Paste the entire string below.
       </p>
       <div class="input-container">
-        <input v-model="username" type="text" placeholder="Paste data" />
+        <input v-model="username" type="text" placeholder="Paste data" @keyup.enter="handleLogin" />
         <a href="https://steamcommunity.com/chat/clientjstoken" target="_blank">
             <button class="input-btn"><img src="@/assets/images/link.png" alt="Add" class="action-icon"/></button>
         </a>
@@ -33,42 +34,62 @@ onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3000/api/check');
     if (response.data.isConnected) {
-    router.push({ name: 'tradeups' });
-  } else {
-    router.push({ name: 'login' });
-  }
-  }
-  catch (error){
+      router.push({ name: 'tradeups' });
+    } else {
+      router.push({ name: 'login' });
+    }
+  } catch (error) {
     console.error('Error during connection check:', error);
   }
-  
 });
 
 const handleLogin = async () => {
+  // Prevent double/triple submissions
+  if (isLoading.value) return;
   isLoading.value = true;
   let chat_clientjstoken = null;
   try {
       chat_clientjstoken = JSON.parse(username.value);
   } catch (error) {
-      alert("Invalid format");
+      alert("Invalid format. Please paste the whole JSON from Steam.");
       isLoading.value = false;
       return;
   }
 
   const requiredKeys = ["logged_in", "steamid", "accountid", "account_name", "token"];
-  const objectKeys = Object.keys(chat_clientjstoken);
+  const objectKeys = Object.keys(chat_clientjstoken || {});
   const isValid = requiredKeys.every(key => objectKeys.includes(key));
   if (!isValid) {
-      alert("Some keys are missing in JSON");
+      alert("Some keys are missing in JSON. Required: logged_in, steamid, accountid, account_name, token.");
+      isLoading.value = false;
+      return;
+  }
+  if (chat_clientjstoken.logged_in !== true) {
+      alert("Steam session is not logged in. Make sure you're logged in on Steam in the browser.");
+      isLoading.value = false;
+      return;
   }
 
   try{
     const response = await axios.post('http://localhost:3000/api/login', chat_clientjstoken);
+    // Success (200): { message: 'Successful login', data: ... }
     router.push({ name: 'tradeups' });
   }
   catch(error){
-    console.error('Error:', error); 
-    alert("An error occurred during login.");
+    // Show meaningful backend or network error messages
+    const resp = error?.response;
+    if (resp) {
+      const msg = resp.data?.message || 'Login failed';
+      const detail = resp.data?.error;
+      alert(detail ? `${msg}: ${detail}` : msg);
+    } else if (error?.message) {
+      alert(`Network error: ${error.message}`);
+    } else {
+      alert("An unknown error occurred during login.");
+    }
+    console.error('Login error:', error);
+  }
+  finally {
     isLoading.value = false;
   }
 
@@ -171,5 +192,4 @@ const handleLogin = async () => {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-  </style>
-  
+</style>
