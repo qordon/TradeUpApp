@@ -80,6 +80,18 @@
         </div>
 
         <div class="filter-column">
+          <h3>Tradable</h3>
+          <label>
+            <input type="checkbox" v-model="selectedTradable" :value="true" />
+            Tradable
+          </label>
+          <label>
+            <input type="checkbox" v-model="selectedTradable" :value="false" />
+            Not Tradable
+          </label>
+        </div>
+
+        <div class="filter-column">
           <h3>Collection</h3>
           <div class="collections-filters-list">
             <label v-for="collection in collections" :key="collection">
@@ -124,7 +136,7 @@
         <table>
           <thead>
             <tr style="padding-left: 5px;">
-              <th @click="sortData('item_name')" style="width: 42%">
+              <th @click="sortData('item_name')" style="width: 36%">
                 ITEM
                 <span v-if="sortKey === 'item_name'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
@@ -148,6 +160,12 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
+              <th @click="sortData('trade_unlock')" style="width: 9%">
+                TRADABLE
+                <span v-if="sortKey === 'trade_unlock'">
+                  {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
+                </span>
+              </th>
               <th @click="sortData('__storageName')" style="width: 8%">
                 STORAGE
                 <span v-if="sortKey === '__storageName'">
@@ -161,7 +179,7 @@
                 </span>
               </th>
               <th style="width: 6%">MOVE</th>
-              <th style="width: 6%">MAX</th>
+              <th style="width: 3%">MAX</th>
             </tr>
           </thead>
           <tbody class="scrollable-body">
@@ -192,6 +210,11 @@
                   </div>
                 </div>
               </td>
+              <td>
+                <template v-if="!item.__isGrouped">
+                  {{ formatTradableDate(item.trade_unlock) }}
+                </template>
+              </td>
               <td>{{ item.__storageName || '' }}</td>
               <td>{{ item.qty || 1 }}</td>
               <td>
@@ -203,16 +226,15 @@
                     :max="item.qty"
                     :value="getMoveQty(item.__rowKey)"
                     @input="onMoveInputFrom(item, $event)"
-                    @keydown="onMoveKeyDown"
-                    @paste="onMovePaste"
                   />
                 </div>
               </td>
               <td>
                 <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
-                  <button @click="onMaxClick(item)" title="Fill max">
+                  <button @click="onMaxClick(item)" title="Fill max" class="max-btn"></button>
+                  <!-- <button @click="onMaxClick(item)" title="Fill max">
                     <img src="@/assets/images/up-arrow.png" alt="Max" class="action-icon"/>
-                  </button>
+                  </button> -->
                 </div>
               </td>
             </tr>
@@ -270,6 +292,7 @@ const selectedStatTrak = ref([]);
 const selectedSouvenir = ref([]);
 const selectedWearNames = ref([]);
 const selectedCollections = ref([]);
+const selectedTradable = ref([]);
 
 // Float filters input (strings to allow typing '.' or ',')
 const minFloatInput = ref('0');
@@ -326,6 +349,7 @@ watch(
     () => selectedSouvenir.value,
     () => selectedWearNames.value,
     () => selectedCollections.value,
+    () => selectedTradable.value,
     () => minFloatInput.value,
     () => maxFloatInput.value,
   ],
@@ -341,24 +365,6 @@ const getMoveQty = (key) => {
 const setMoveQty = (key, val) => {
   const n = Number(val);
   moveQuantities.value[key] = !isNaN(n) && n >= 0 ? n : 0;
-};
-
-// Strict MOVE input handlers (digits only, clamp to row max)
-const onMoveKeyDown = (e) => {
-  // Allow navigation and editing keys
-  const allowedKeys = ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End',];
-  if (allowedKeys.includes(e.key)) return;
-  // Allow digits only
-  if (/^\d$/.test(e.key)) return;
-  // Block everything else (no minus, dot, comma, letters, etc.)
-  e.preventDefault();
-};
-
-const onMovePaste = (e) => {
-  const text = (e.clipboardData || window.clipboardData).getData('text');
-  if (!/^\d+$/.test(text)) {
-    e.preventDefault();
-  }
 };
 
 const onMoveInputFrom = (row, e) => {
@@ -480,6 +486,7 @@ const toggleStorage = async (storage) => {
           params: { casketId: storageId }
     });
     const storageItems = Array.isArray(response.data?.data) ? response.data.data : [];
+    console.log(storageItems);
     // If API returns casket_id, use it to filter; otherwise, use all items (they belong to this casket by context)
     const hasCasketField = storageItems.some((it) => it && it.casket_id != null);
     const itemsForThisStorage = hasCasketField
@@ -747,6 +754,7 @@ const sortedItems = computed(() => {
   }
 
   result.sort((a, b) => {
+
     if (sortKey.value === 'item_paint_wear') {
       const aNumRaw = typeof a.item_paint_wear === 'number' ? a.item_paint_wear : parseFloat(a.item_paint_wear);
       const bNumRaw = typeof b.item_paint_wear === 'number' ? b.item_paint_wear : parseFloat(b.item_paint_wear);
@@ -754,6 +762,18 @@ const sortedItems = computed(() => {
       const bNum = Number.isFinite(bNumRaw) ? bNumRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
       if (aNum !== bNum) return sortOrder.value === 'asc' ? aNum - bNum : bNum - aNum;
       // tie-breaker for stability
+      const aName = (a.item_name || '').toLowerCase();
+      const bName = (b.item_name || '').toLowerCase();
+      if (aName < bName) return -1;
+      if (aName > bName) return 1;
+      return 0;
+    }
+    if (sortKey.value === 'trade_unlock') {
+      const aTimeRaw = Date.parse(a.trade_unlock);
+      const bTimeRaw = Date.parse(b.trade_unlock);
+      const aTime = Number.isFinite(aTimeRaw) ? aTimeRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      const bTime = Number.isFinite(bTimeRaw) ? bTimeRaw : (sortOrder.value === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      if (aTime !== bTime) return sortOrder.value === 'asc' ? aTime - bTime : bTime - aTime;
       const aName = (a.item_name || '').toLowerCase();
       const bName = (b.item_name || '').toLowerCase();
       if (aName < bName) return -1;
@@ -799,7 +819,9 @@ const filteredItems = computed(() => {
       const n = typeof item.item_paint_wear === 'number' ? item.item_paint_wear : parseFloat(item.item_paint_wear);
       matchesFloat = Number.isFinite(n) && n >= minF && n <= maxF;
     }
-    return matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections && matchesFloat;
+    const tradable = isItemTradable(item.trade_unlock);
+    const matchesTradable = selectedTradable.value.length === 0 || selectedTradable.value.includes(tradable);
+    return matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections && matchesFloat && matchesTradable;
   });
 });
 
@@ -854,6 +876,7 @@ const isFilterApplied = computed(() => {
       selectedSouvenir.value.length > 0 ||
       selectedWearNames.value.length > 0 ||
       selectedCollections.value.length > 0 ||
+      selectedTradable.value.length > 0 ||
       searchQuery.length > 0 ||
       Number(minFloat.value) > 0 || Number(maxFloat.value) < 1
     );
@@ -894,6 +917,23 @@ const getRarityStyle = (rarityName) => {
   return { backgroundColor: color };
 };
 
+const formatTradableDate = (isoString) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (isNaN(d)) return '';
+  const day = d.getDate();
+  const month = d.getMonth() + 1;
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
+const isItemTradable = (isoString) => {
+  if (!isoString) return true;
+  const t = Date.parse(isoString);
+  if (!Number.isFinite(t)) return true;
+  return t <= Date.now();
+};
+
 
 </script>
 
@@ -903,8 +943,6 @@ const getRarityStyle = (rarityName) => {
   display: flex;
   justify-content: flex-start;
   max-height: 100vh;
-  border-left: 0px solid #555;
-
 }
 .content {
   flex: 1;
@@ -915,17 +953,13 @@ const getRarityStyle = (rarityName) => {
   width: 300px;
   background-color: #444;
 }
-
-
 div {
   color: white;
 }
-
 h1 {
   color: white;
   padding-left: 10px;
 }
-
 .filters {
   display: flex;
   align-items: center;
@@ -987,8 +1021,6 @@ h1 {
 .inventory-list::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.6);
 }
-
-
 table {
   width: 100%;
   border: none;
@@ -996,10 +1028,8 @@ table {
   background-color: #444;
   
 }
-
-
 th, td {
-  padding: 8px 10px;
+  padding: 8px 5px;
   text-align: left;
   border-bottom: 1px solid #555;
   border: none;
@@ -1030,7 +1060,6 @@ td {
 tr{
   border-bottom: 1px solid #555;
 }
-
 .rarity-circle {
     width: 13px;
     height: 13px;
@@ -1403,4 +1432,13 @@ button:hover {
   text-align: center;
 }
 .close-modal-btn { padding: 3px 15px; }
+
+.max-btn {
+  width: 20px;
+  height: 20px;
+  background: url('@/assets/images/up-arrow.png') center/contain no-repeat;
+  filter: invert(1);
+  border: none;
+  cursor: pointer;
+}
 </style>
