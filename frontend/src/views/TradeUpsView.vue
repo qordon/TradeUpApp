@@ -95,7 +95,7 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('collection')" style="width: 25%">
+              <th @click="sortData('collection')" style="width: 20%">
                 COLLECTION
                 <span v-if="sortKey === 'collection'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
@@ -107,7 +107,7 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th style="width: 5.5%">ADD</th>
+              <th style="width: 4%">ADD</th>
             </tr>
           </thead>
           <tbody class="scrollable-body">
@@ -132,15 +132,13 @@
               <td>
                 <div v-if="item.stickers.length > 0" class="stickers-images">
                   <div v-for="(sticker, idx) in item.stickers" :key="idx" class="sticker-container">
-                    <img :src="sticker.url" alt="s" class="sticker-image"/>
+                    <img :src="sticker.stickerImageUrl" alt="s" class="sticker-image"/>
                   </div>
                 </div>
               </td>
               <td>
-                <button @click="toggleItemInTradeUp(item)">
-                  <img v-if="isItemInTradeUp(item)" src="@/assets/images/trash.png" alt="Remove" class="action-icon remove"/>
-                  <img v-else src="@/assets/images/hand-tools.png" alt="Add" class="action-icon"/>
-                </button>
+                <button v-if="isItemInTradeUp(item)" @click="toggleItemInTradeUp(item)" title="Fill max" class="action-icon remove"></button>
+                <button v-else @click="toggleItemInTradeUp(item)" title="Fill max" class="action-icon"></button>
               </td>
             </tr>
           </tbody>
@@ -389,6 +387,32 @@ const sortData = (key) => {
 
 const sortedItems = computed(() => {
   let result = [...filteredItems.value];
+  result = result.map(item => {
+    const hasImage = item.imageURL && item.imageURL.trim() !== '';
+    const finalImageURL = hasImage
+      ? item.imageURL
+      : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`;
+
+    let updatedStickers = item.stickers || [];
+    if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+      updatedStickers = updatedStickers.map(sticker => {
+        const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+        const finalStickerURL = hasStickerImage
+          ? sticker.imageURL
+          : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`;
+        return {
+          ...sticker,
+          stickerImageUrl: finalStickerURL,
+        };
+      });
+    }
+
+    return {
+      ...item,
+      imageURL: finalImageURL,
+      stickers: updatedStickers,
+    };
+  });
   if (searchQuery.value) {
     result = result.filter(item => 
       item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -722,7 +746,6 @@ h1 {
   background: rgba(255, 255, 255, 0.6);
 }
 
-
 table {
   width: 100%;
   border: none;
@@ -731,12 +754,19 @@ table {
   
 }
 
-
 th, td {
-  padding: 8px 10px;
+  padding: 8px 5px;
   text-align: left;
   border-bottom: 1px solid #555;
   border: none;
+}
+th:not(:first-child),
+td:not(:first-child) {
+  text-align: center;
+} 
+
+td:first-child {
+  padding-left: 8px;
 }
 
 th {
@@ -801,14 +831,30 @@ button:hover {
   opacity: 0.8;
 }
 
-.action-icon {
+/* .action-icon {
   width: 20px;
   height: 20px;
   filter: invert(1);
 }
 .action-icon.remove {
   filter: invert(17%) sepia(94%) saturate(7480%) hue-rotate(-5deg) brightness(107%) contrast(116%);
+} */
+
+.action-icon {
+  width: 20px;
+  height: 20px;
+  background: url('@/assets/images/hand-tools.png') center/contain no-repeat;
+  
+  filter: invert(1);
+  border: none;
+  cursor: pointer;
 }
+
+.action-icon.remove {
+  background: url('@/assets/images/trash.png') center/contain no-repeat;
+  filter: invert(17%) sepia(94%) saturate(7480%) hue-rotate(-5deg) brightness(107%) contrast(116%);
+}
+
 
 .full-paint-wear {
   position: absolute;
@@ -824,11 +870,20 @@ button:hover {
 .stickers-images {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .sticker-container {
   display: inline-block;
+  align-items: center;
+}
+.sticker-image {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  display: block;
 }
 
 

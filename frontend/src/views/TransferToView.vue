@@ -198,6 +198,7 @@
                 <div v-if="(!item.__isGrouped || item.qty <= 1) && item.stickers.length > 0" class="stickers-images">
                   <div v-for="(sticker, idx) in item.stickers" :key="idx" class="sticker-container">
                     <img :src="sticker.stickerImageUrl" alt="s" class="sticker-image"/>
+                    <div class="sticker-name">{{ sticker.sticker_name }}</div>
                   </div>
                 </div>
               </td>
@@ -222,9 +223,6 @@
               <td>
                 <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
                   <button @click="onMaxClick(item)" title="Fill max" class="max-btn"></button>
-                  <!-- <button @click="onMaxClick(item)" title="Fill max">
-                    <img src="@/assets/images/up-arrow.png" alt="Max" class="action-icon"/>
-                  </button> -->
                 </div>
               </td>
             
@@ -380,7 +378,6 @@ const fetchInventory = async () => {
     isLoading.value = true;
     const response = await axios.get('http://localhost:3000/api/inventory');
     allInventory.value = [...response.data.data].reverse();
-    console.log(allInventory.value);
     allInventory.value.forEach((item) => {
       let itemName = item.item_name.replace('StatTrak™ ', '');
       itemName = itemName.replace("Souvenir ", "");
@@ -622,7 +619,6 @@ const sortedItems = computed(() => {
     };
   });
 
-  // 🔹 Фільтри
   if (searchQuery.value) {
     result = result.filter(item =>
       item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -953,6 +949,10 @@ td:not(:first-child) {
   text-align: center;
 }
 
+td:first-child {
+  padding-left: 8px;
+}
+
 th {
   background-color: #222;
   color: white;
@@ -1055,11 +1055,18 @@ button:hover {
   align-items: center;
   justify-content: center;
   width: 100%;
+  overflow: visible;
 }
 
 .sticker-container {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0;
+  width: 45px; /* match image width to avoid increasing column width */
+  height: 45px; /* same as image height to keep row height stable */
+  position: relative;
 }
 
 .sticker-image {
@@ -1067,6 +1074,36 @@ button:hover {
   height: 45px;
   object-fit: contain;
   display: block;
+  transition: transform 0.22s ease;
+}
+
+.sticker-container:hover .sticker-image {
+  transform: scale(1.4);
+}
+
+.sticker-name {
+  position: absolute;
+  top: calc(100% + 2px); /* render below image without affecting layout */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  white-space: nowrap;
+  /* min-width: 80px; increased width for label */
+  max-width: 250px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sticker-container:hover .sticker-name {
+  opacity: 1;
 }
 
 .filter-menu {
