@@ -1000,6 +1000,7 @@ h1 {
   overflow-y: auto;
   background-color: #333;
   scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
 
 .inventory-list::-webkit-scrollbar {

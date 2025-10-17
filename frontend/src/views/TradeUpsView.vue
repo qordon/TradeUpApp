@@ -101,7 +101,7 @@
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
                 </span>
               </th>
-              <th @click="sortData('stickers')">
+              <th @click="sortData('stickers')" style="width: 28%">
                 STICKERS
                 <span v-if="sortKey === 'stickers'">
                   {{ sortOrder === 'asc' ? '▴' : (sortOrder === 'desc' ? '▾' : '↕') }}
@@ -133,6 +133,7 @@
                 <div v-if="item.stickers.length > 0" class="stickers-images">
                   <div v-for="(sticker, idx) in item.stickers" :key="idx" class="sticker-container">
                     <img :src="sticker.stickerImageUrl" alt="s" class="sticker-image"/>
+                    <div class="sticker-name">{{ sticker.sticker_name }}</div>
                   </div>
                 </div>
               </td>
@@ -661,8 +662,6 @@ const openFloatPrompt = async () => {
   display: flex;
   justify-content: flex-start;
   max-height: 100vh;
-  border-left: 2px solid #555;
-
 }
 .content {
   flex: 1;
@@ -727,6 +726,7 @@ h1 {
   border-top: 1px solid #555;
   background-color: #333;
   scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
 
 .inventory-list::-webkit-scrollbar {
@@ -831,15 +831,6 @@ button:hover {
   opacity: 0.8;
 }
 
-/* .action-icon {
-  width: 20px;
-  height: 20px;
-  filter: invert(1);
-}
-.action-icon.remove {
-  filter: invert(17%) sepia(94%) saturate(7480%) hue-rotate(-5deg) brightness(107%) contrast(116%);
-} */
-
 .action-icon {
   width: 20px;
   height: 20px;
@@ -869,21 +860,61 @@ button:hover {
 }
 .stickers-images {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   width: 100%;
+  overflow: visible;
 }
 
 .sticker-container {
-  display: inline-block;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0;
+  width: 45px;
+  height: 45px;
+  position: relative;
+}
+
+.sticker-container:hover {
+  z-index: 5; /* raise above neighboring cells so label can overlap */
 }
 .sticker-image {
   width: 45px;
   height: 45px;
   object-fit: contain;
   display: block;
+  transition: transform 0.22s ease;
+}
+
+.sticker-container:hover .sticker-image {
+  transform: scale(1.4);
+}
+
+.sticker-name {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  white-space: nowrap;
+  max-width: 250px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sticker-container:hover .sticker-name {
+  opacity: 1;
 }
 
 

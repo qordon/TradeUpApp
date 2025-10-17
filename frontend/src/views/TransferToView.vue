@@ -921,6 +921,7 @@ h1 {
   overflow-y: auto;
   background-color: #333;
   scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
 
 .inventory-list::-webkit-scrollbar {
@@ -1094,7 +1095,6 @@ button:hover {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   white-space: nowrap;
-  /* min-width: 80px; increased width for label */
   max-width: 250px;
   opacity: 0;
   transition: opacity 0.22s ease;
