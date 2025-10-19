@@ -262,6 +262,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
+import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
 
 const router = useRouter();
 const items = ref([]);
@@ -438,6 +439,7 @@ const clearFilters = () => {
   selectedCollections.value = [];
   minFloatInput.value = '0';
   maxFloatInput.value = '1';
+  selectedTradable.value = [];
 };
   
 // Click on ADD column: set the MOVE input to max available for that row
@@ -620,9 +622,17 @@ const sortedItems = computed(() => {
   });
 
   if (searchQuery.value) {
-    result = result.filter(item =>
-      item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+    const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    result = result.filter(item => {
+      const line = buildItemSearchLine(item);
+      const words = line.split(/\s+/);
+      return tokens.every(t => {
+        if (t.length < 3) {
+          return words.some(w => w.startsWith(t));
+        }
+        return line.includes(t);
+      });
+    });
   }
 
   if (rarityFilterTradeUp.value) {

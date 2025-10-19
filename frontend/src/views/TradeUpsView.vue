@@ -179,6 +179,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
+import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
 
 import TradeUpPanel from '../components/TradeUpPanel.vue';
 import TradeUpConfirmation from '../components/TradeUpConfirmation.vue';
@@ -415,9 +416,17 @@ const sortedItems = computed(() => {
     };
   });
   if (searchQuery.value) {
-    result = result.filter(item => 
-      item.item_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+    const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    result = result.filter(item => {
+      const line = buildItemSearchLine(item);
+      const words = line.split(/\s+/);
+      return tokens.every(t => {
+        if (t.length < 3) {
+          return words.some(w => w.startsWith(t));
+        }
+        return line.includes(t);
+      });
+    });
   }
   if (rarityFilterTradeUp.value){
     result = result.filter(item => 
