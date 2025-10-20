@@ -222,10 +222,40 @@
               </td>
               <td>
                 <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
-                  <button @click="onMaxClick(item)" title="Fill max" class="max-btn"></button>
+                  <template v-if="isAtRowMax(item)">
+                    <button
+                      class="arrow-btn arrow--min"
+                      title="Minimize"
+                      @click="onMinClick(item)"
+                      aria-label="Minimize"
+                    ></button>
+                  </template>
+                  <template v-else-if="isAtRowMin(item)">
+                    <button
+                      class="arrow-btn arrow--max"
+                      title="Maximize"
+                      @click="onMaxClick(item)"
+                      aria-label="Maximize"
+                    ></button>
+                  </template>
+                  <template v-else>
+                    <div class="arrow-split" aria-label="Maximize / Minimize">
+                      <div
+                        class="arrow-half arrow-up"
+                        title="Maximize"
+                        @click="onMaxClick(item)"
+                        aria-label="Maximize"
+                      ></div>
+                      <div
+                        class="arrow-half arrow-down"
+                        title="Minimize"
+                        @click="onMinClick(item)"
+                        aria-label="Minimize"
+                      ></div>
+                    </div>
+                  </template>
                 </div>
               </td>
-            
             </tr>
           </tbody>
         </table>
@@ -452,6 +482,36 @@ const onMaxClick = (row) => {
   moveQuantities.value[key] = Math.min(Number(row.qty || 1), remainingExcl);
 };
 
+const isAtRowMax = (row) => {
+  const key = row.__rowKey;
+  const current = Number(moveQuantities.value[key] || 0);
+  const rowMax = Number(row.qty || 0);
+  const used = storageUsed.value;
+  const remainingExcl = Math.max(0, storageCapacityLimit - used - (selectedCount.value - current));
+  const cap = Math.max(0, Math.min(rowMax, remainingExcl));
+  return current === cap && cap > 0;
+};
+
+const onMaxToggle = (row) => {
+  const key = row.__rowKey;
+  if (isAtRowMax(row)) {
+    moveQuantities.value[key] = 0;
+  } else {
+    onMaxClick(row);
+  }
+};
+
+const isAtRowMin = (row) => {
+  const key = row.__rowKey;
+  const current = Number(moveQuantities.value[key] || 0);
+  return current === 0;
+};
+
+const onMinClick = (row) => {
+  const key = row.__rowKey;
+  moveQuantities.value[key] = 0;
+};
+
 // Selected to move: reactive list and total count (sum of quantities)
 const selectedToMove = computed(() => {
   return groupedFilteredItems.value
@@ -621,19 +681,6 @@ const sortedItems = computed(() => {
     };
   });
 
-  if (searchQuery.value) {
-    const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    result = result.filter(item => {
-      const line = buildItemSearchLine(item);
-      const words = line.split(/\s+/);
-      return tokens.every(t => {
-        if (t.length < 3) {
-          return words.some(w => w.startsWith(t));
-        }
-        return line.includes(t);
-      });
-    });
-  }
 
   if (rarityFilterTradeUp.value) {
     result = result.filter(item =>
@@ -722,7 +769,24 @@ const filteredItems = computed(() => {
     }
     const tradable = isItemTradable(item.trade_unlock);
     const matchesTradable = selectedTradable.value.length === 0 || selectedTradable.value.includes(tradable);
-    return movable === true && matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections && matchesFloat && matchesTradable;
+    let ok = movable === true && matchesRarity && matchesStatTrak && matchesSouvenir && matchesWear && matchesCollections && matchesFloat && matchesTradable;
+
+    // Apply search query BEFORE grouping so any matching member keeps the group
+    if (ok && searchQuery.value) {
+      const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      if (tokens.length > 0) {
+        const line = buildItemSearchLine(item);
+        const words = line.split(/\s+/);
+        ok = tokens.every(t => {
+          if (t.length < 3) {
+            return words.some(w => w.startsWith(t));
+          }
+          return line.includes(t);
+        });
+      }
+    }
+
+    return ok;
   });
 });
 
@@ -1382,13 +1446,53 @@ button:hover {
   padding: 3px 15px;
 }
 
-.max-btn {
-  width: 20px;
-  height: 20px;
-  background: url('@/assets/images/up-arrow.png') center/contain no-repeat;
-  filter: invert(1);
+/* Compact, consistent hit area */
+.arrow-btn {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  position: relative;
   border: none;
+  padding: 0;
+  background: none;
   cursor: pointer;
+  filter: invert(1);
+  line-height: 0;
+  vertical-align: middle;
+  background: url("@/assets/images/up-arrow.png") center/contain no-repeat;
+}
+.arrow--max {
+  transform-origin: 50% 50%;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.arrow--min{
+  transform: rotate(180deg);
+}
+.arrow-split{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+  width: 40px;
+  height: 40px;
+}
+.arrow-split .arrow-half {
+  width: 100%;
+  height: 50%;
+  background: url("@/assets/images/exchange.png") center/contain no-repeat;
+  filter: invert(1);
+}
+.arrow-split .arrow-up,
+.arrow-split .arrow-down {
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 54% 35%, 54% 56%, 0 56%);
+  transform: rotate(90deg);
+}
+.arrow-split .arrow-down {
+  transform: rotate(270deg);
+}
+.arrow-up:hover, .arrow-down:hover{
+  opacity: 0.8;
+  cursor: pointer
 }
 </style>
   

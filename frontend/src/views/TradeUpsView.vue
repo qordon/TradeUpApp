@@ -415,19 +415,6 @@ const sortedItems = computed(() => {
       stickers: updatedStickers,
     };
   });
-  if (searchQuery.value) {
-    const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    result = result.filter(item => {
-      const line = buildItemSearchLine(item);
-      const words = line.split(/\s+/);
-      return tokens.every(t => {
-        if (t.length < 3) {
-          return words.some(w => w.startsWith(t));
-        }
-        return line.includes(t);
-      });
-    });
-  }
   if (rarityFilterTradeUp.value){
     result = result.filter(item => 
       item.rarity === rarityFilterTradeUp.value);
@@ -484,7 +471,21 @@ const filteredItems = computed(() => {
       const n = typeof item.item_paint_wear === 'number' ? item.item_paint_wear : parseFloat(item.item_paint_wear);
       matchesFloat = Number.isFinite(n) && n >= minF && n <= maxF;
     }
-    return matchesRarity && matchesStatTrak && matchesWear && matchesCollections && matchesFloat;
+    let ok = matchesRarity && matchesStatTrak && matchesWear && matchesCollections && matchesFloat;
+    if (ok && searchQuery.value) {
+      const tokens = searchQuery.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      if (tokens.length > 0) {
+        const line = buildItemSearchLine(item);
+        const words = line.split(/\s+/);
+        ok = tokens.every(t => {
+          if (t.length < 3) {
+            return words.some(w => w.startsWith(t));
+          }
+          return line.includes(t);
+        });
+      }
+    }
+    return ok;
   });
 });
 const isFilterApplied = computed(() => {
@@ -500,7 +501,6 @@ const isFilterApplied = computed(() => {
 
 const cleanCollectionName = (name) => {
   if (name) {
-    // Видаляємо "Collection" і "The" з початку та кінця рядка
     return name.replace(/\b(The|Collection)\b/g, '').trim();
   }
   return '';
