@@ -713,16 +713,26 @@ const moveSelected = () => {
 
   axios.post('http://localhost:3000/api/transferFromStorage', payload)
     .then((resp) => {
-      transferResult.value = resp?.data || { successCount: 0, failedCount: 0 };
-      // Optimistically update UI: remove extracted items from the displayed list
-      const removeSet = new Set(
-        Object.values(payload).flat().map((id) => String(id))
-      );
-      items.value = items.value.filter((it) => !removeSet.has(String(it.item_id)));
-      // Update inventory count locally so capacity checks remain accurate until refresh
-      try {
-        currentInventoryCount.value = Number(currentInventoryCount.value || 0) + removeSet.size;
-      } catch (_) { /* noop */ }
+      const data = resp?.data;
+      transferResult.value = data || { successCount: 0, failedCount: 0, results: [] };
+      // Remove only items that backend confirmed as successfully extracted
+      const okIds = Array.isArray(data?.results)
+        ? data.results
+            .filter(r => r && (r.success === true || r.success === 'true'))
+            .map(r => String(r.itemId))
+        : null;
+
+      if (okIds && okIds.length > 0) {
+        const okSet = new Set(okIds);
+        items.value = items.value.filter((it) => !okSet.has(String(it.item_id)));
+        // Update inventory count locally so capacity checks remain accurate until refresh
+        try {
+          currentInventoryCount.value = Number(currentInventoryCount.value || 0) + okSet.size;
+        } catch (_) { /* noop */ }
+      } else if (!Array.isArray(data?.results)) {
+        // Backend did not return a detailed results list; do not mutate items
+        transferError.value = 'Backend did not return item-level results; nothing was removed locally.';
+      }
     })
     .catch((err) => {
       console.error('Extract error:', err);
