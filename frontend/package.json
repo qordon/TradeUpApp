@@ -14,7 +14,8 @@
     "pinia": "^2.3.1",
     "serve": "^14.2.4",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue3-lottie": "^3.3.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

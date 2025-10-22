@@ -280,7 +280,10 @@
         <h3>Extracting Items</h3>
       </div>
       <div class="modal-body" v-if="transferPending">
-        <div class="spinner"></div>
+        <Vue3Lottie :animationData="animation"  
+                  :loop="true"
+                  :autoplay="true"
+                  class="animated-icon" />
         <div>Processing your extract request...</div>
       </div>
       <div class="modal-body" v-else>
@@ -300,9 +303,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { Vue3Lottie } from 'vue3-lottie'
 import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
 import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
+import animation from '@/assets/animations/ak-knife-m4a4-from-storage.json'
 
 const router = useRouter();
 const items = ref([]);
@@ -691,7 +696,7 @@ const onModalOverlayClick = () => {
   }
 };
 
-const moveSelected = () => {
+const moveSelected = async () => {
   const payload = buildTransferPayload();
   const allIdsCount = Object.values(payload).reduce((sum, arr) => sum + arr.length, 0);
   if (allIdsCount === 0) return;
@@ -711,7 +716,7 @@ const moveSelected = () => {
   transferResult.value = null;
   transferError.value = null;
 
-  axios.post('http://localhost:3000/api/transferFromStorage', payload)
+  await axios.post('http://localhost:3000/api/transferFromStorage', payload)
     .then((resp) => {
       const data = resp?.data;
       transferResult.value = data || { successCount: 0, failedCount: 0, results: [] };
@@ -1509,7 +1514,7 @@ button:hover {
   background: #1a1a1a;
 }
 .modal-body {
-  padding: 16px;
+  padding: 8px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1593,5 +1598,9 @@ button:hover {
 .arrow-up:hover, .arrow-down:hover{
   opacity: 0.8;
   cursor: pointer
+}
+.animated-icon {
+  width: 300px;
+  filter: invert(1);
 }
 </style>
