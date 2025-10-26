@@ -34,6 +34,14 @@ export class tradeUps {
     this.directory = dir;
   }
 
+  normalizePaintWear(minWear, maxWear, paintWear) {
+    let abc = new Float32Array([minWear, maxWear, paintWear, 0, 0]);
+    abc[3] = abc[2] - abc[0];
+    abc[4] = (abc[3] / (abc[1] - abc[0]))
+
+    return abc[4];
+  }
+
   // Get rarity
   getRarity(min_wear, max_wear, averageFloat) {
     let abc = new Float32Array([min_wear, max_wear, averageFloat, 0, 0]);
@@ -116,9 +124,13 @@ export class tradeUps {
             seenSkins.push(skin);
           }
         });
-  
+        let normalizedPaintWear = this.normalizePaintWear(
+          this.collections[collection][cleanItemName]['min-wear'],
+          this.collections[collection][cleanItemName]['max-wear'],
+          element.item_paint_wear
+        );
         possibleSkins.push(...possible);
-        items_paint_wear.push(element.item_paint_wear);
+        items_paint_wear.push(normalizedPaintWear);
       });
       let sum = new Float32Array(1);
       for (let i = 0; i < items_paint_wear.length; i++) {

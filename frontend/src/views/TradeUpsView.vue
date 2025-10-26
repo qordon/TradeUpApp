@@ -180,12 +180,14 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
 import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
+import { useImageMap } from '@/composables/useImageMap.js'
 
 import TradeUpPanel from '../components/TradeUpPanel.vue';
 import TradeUpConfirmation from '../components/TradeUpConfirmation.vue';
 import RouletteWheel from '@/components/RouletteWheel.vue';
 
 const router = useRouter();
+const { imageMap, loadImageMap, getItemImage } = useImageMap()
 const items = ref([]);
 const isModalOpen = ref(false);
 const isRouletteWheelOpen = ref(false);
@@ -249,6 +251,7 @@ onMounted(async () => {
   try{
     const response = await axios.get('http://localhost:3000/api/check');
     if (response.data.isConnected) {
+      await loadImageMap();
       await fetchInventory();
   } else {
     router.push({ name: 'login' });
@@ -282,8 +285,22 @@ const fetchInventory = async () => {
         item.imageURL = tradeUpInstance.collections[collection][itemName]["imageURL"];
       }
       catch (error) {
-        item.imageURL = "";
+        item.imageURL = getItemImage(item.item_url);
       }
+      let updatedStickers = item.stickers || [];
+      if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+        updatedStickers = updatedStickers.map(sticker => {
+          const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+          const finalStickerURL = hasStickerImage
+            ? sticker.imageURL
+            : getItemImage(sticker.sticker_url);
+          return {
+            ...sticker,
+            stickerImageUrl: finalStickerURL,
+          };
+        });
+      }
+      item.stickers = updatedStickers;
       
     });
 
@@ -332,6 +349,7 @@ const confirmTradeUp = async () => {
   const itemIds = itemsToTradeUp.value.map(item => parseInt(item.item_id))
   const itemsSeeds = itemsToTradeUp.value.map(item => parseInt(item.item_paint_seed))
   const itemsFloats = itemsToTradeUp.value.map(item => (item.item_paint_wear))
+  const itemsNames = itemsToTradeUp.value.map(item => (item.item_name))
   let recipe_id = 0;
   if (!itemsToTradeUp.value[0].item_name.includes('StatTrak')){
     recipe_id = itemsToTradeUp.value[0].rarity - 1;
@@ -341,7 +359,9 @@ const confirmTradeUp = async () => {
   }
   try{
     const response = await axios.post('http://localhost:3000/api/confirm/tradeup', 
-                                     {itemsIds: itemIds, itemsSeeds: itemsSeeds, itemsFloats: itemsFloats, recipeId: recipe_id, })
+                                     {itemsIds: itemIds, itemsNames: itemsNames,
+                                      itemsSeeds: itemsSeeds, itemsFloats: itemsFloats, 
+                                      recipeId: recipe_id, })
     if (response.data.success === true) {
       closeModal();
       itemsToTradeUp.value = [];
@@ -389,32 +409,7 @@ const sortData = (key) => {
 
 const sortedItems = computed(() => {
   let result = [...filteredItems.value];
-  result = result.map(item => {
-    const hasImage = item.imageURL && item.imageURL.trim() !== '';
-    const finalImageURL = hasImage
-      ? item.imageURL
-      : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`;
-
-    let updatedStickers = item.stickers || [];
-    if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
-      updatedStickers = updatedStickers.map(sticker => {
-        const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
-        const finalStickerURL = hasStickerImage
-          ? sticker.imageURL
-          : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`;
-        return {
-          ...sticker,
-          stickerImageUrl: finalStickerURL,
-        };
-      });
-    }
-
-    return {
-      ...item,
-      imageURL: finalImageURL,
-      stickers: updatedStickers,
-    };
-  });
+  
   if (rarityFilterTradeUp.value){
     result = result.filter(item => 
       item.rarity === rarityFilterTradeUp.value);

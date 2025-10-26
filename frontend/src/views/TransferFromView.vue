@@ -308,8 +308,11 @@ import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
 import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
 import animation from '@/assets/animations/ak-knife-m4a4-from-storage.json'
+import { useImageMap } from '@/composables/useImageMap.js'
+import { formatTradableDate, isItemTradable } from '@/utils/dateUtils.js'
 
 const router = useRouter();
+const { imageMap, loadImageMap, getItemImage } = useImageMap()
 const items = ref([]);
 const allInventory = ref([]);
 const isLoading = ref(true);
@@ -431,6 +434,7 @@ onMounted(async () => {
   try{
     const response = await axios.get('http://localhost:3000/api/check');
     if (response.data.isConnected) {
+      await loadImageMap();
       await fetchInventory(); // fetch to populate storages list on mount
     } else {
       router.push({ name: 'login' });
@@ -462,9 +466,22 @@ const fetchInventory = async () => {
         item.imageURL = tradeUpInstance.collections[collection][itemName]["imageURL"];
       }
       catch (error) {
-        item.imageURL = "";
+        item.imageURL = getItemImage(item.item_url);
       }
-      
+      let updatedStickers = item.stickers || [];
+      if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+        updatedStickers = updatedStickers.map(sticker => {
+          const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+          const finalStickerURL = hasStickerImage
+            ? sticker.imageURL
+            : getItemImage(sticker.sticker_url);
+          return {
+            ...sticker,
+            stickerImageUrl: finalStickerURL,
+          };
+        });
+      }
+      item.stickers = updatedStickers;
     });
 
   } catch (error) {
@@ -536,9 +553,22 @@ const toggleStorage = async (storage) => {
       try {
         item.imageURL = tradeUpInstance.collections[collection][itemName]["imageURL"];
       } catch (e) {
-        item.imageURL = "";
+        item.imageURL = getItemImage(item.item_url);
       }
-      if (!Array.isArray(item.stickers)) item.stickers = [];
+      let updatedStickers = item.stickers || [];
+      if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+        updatedStickers = updatedStickers.map(sticker => {
+          const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+          const finalStickerURL = hasStickerImage
+            ? sticker.imageURL
+            : getItemImage(sticker.sticker_url);
+          return {
+            ...sticker,
+            stickerImageUrl: finalStickerURL,
+          };
+        });
+      }
+      item.stickers = updatedStickers;
       // Mark storage metadata
       item.__storageId = item.casket_id ?? storageId;
       item.__storageName = storageName;
@@ -765,31 +795,7 @@ const sortData = (key) => {
 
 const sortedItems = computed(() => {
   let result = [...groupedFilteredItems.value];
-  // Map image URLs for items and stickers (fallbacks similar to TransferToView)
-  result = result.map(item => {
-    const hasImage = item.imageURL && String(item.imageURL).trim() !== '';
-    const finalImageURL = hasImage
-      ? item.imageURL
-      : (item.item_url
-          ? `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`
-          : (item.imageURL || ''));
 
-    let updatedStickers = Array.isArray(item.stickers) ? item.stickers : [];
-    if (updatedStickers.length > 0) {
-      updatedStickers = updatedStickers.map(sticker => {
-        const existing = sticker.stickerImageUrl && String(sticker.stickerImageUrl).trim() !== '' ? sticker.stickerImageUrl : null;
-        const direct = sticker.imageURL && String(sticker.imageURL).trim() !== '' ? sticker.imageURL : null;
-        const directAlt = sticker.url && String(sticker.url).trim() !== '' ? sticker.url : null;
-        const fallback = sticker.sticker_url
-          ? `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`
-          : null;
-        const finalStickerURL = existing || direct || directAlt || fallback || '';
-        return { ...sticker, stickerImageUrl: finalStickerURL };
-      });
-    }
-
-    return { ...item, imageURL: finalImageURL, stickers: updatedStickers };
-  });
   if (rarityFilterTradeUp.value){
     result = result.filter(item => 
       item.rarity === rarityFilterTradeUp.value);
@@ -988,24 +994,6 @@ const getRarityStyle = (rarityName) => {
   }
   return { backgroundColor: color };
 };
-
-const formatTradableDate = (isoString) => {
-  if (!isoString) return '';
-  const d = new Date(isoString);
-  if (isNaN(d)) return '';
-  const day = d.getDate();
-  const month = d.getMonth() + 1;
-  const year = d.getFullYear();
-  return `${day}.${month}.${year}`;
-};
-
-const isItemTradable = (isoString) => {
-  if (!isoString) return true;
-  const t = Date.parse(isoString);
-  if (!Number.isFinite(t)) return true;
-  return t <= Date.now();
-};
-
 </script>
 
 <style scoped>

@@ -204,7 +204,7 @@
               </td>
               <td>
                 <template v-if="!item.__isGrouped">
-                  {{ formatUnlockDate(item.trade_unlock) }}
+                  {{ formatTradableDate(item.trade_unlock) }}
                 </template>
               </td>
               <td>{{ item.qty || 1 }}</td>
@@ -298,8 +298,11 @@ import axios from 'axios';
 import { tradeUps } from '../models/tradeUps';
 import { buildItemSearchLine } from '../utils/buildItemSearchLine.js';
 import animation from '@/assets/animations/ak-knife-m4a4-to-storage.json'
+import { useImageMap } from '@/composables/useImageMap.js'
+import { formatTradableDate, isItemTradable } from '@/utils/dateUtils.js'
 
 const router = useRouter();
+const { imageMap, loadImageMap, getItemImage } = useImageMap()
 const items = ref([]);
 const allInventory = ref([]);
 
@@ -398,12 +401,14 @@ onMounted(async () => {
   try{
     const response = await axios.get('http://localhost:3000/api/check');
     if (response.data.isConnected) {
+      await loadImageMap()
       await fetchInventory(); // fetch to populate storages list on mount
     } else {
       router.push({ name: 'login' });
     }
   }
   catch (error){
+    console.log(error);
     router.push({ name: 'login' });
   }
   
@@ -426,8 +431,22 @@ const fetchInventory = async () => {
         item.imageURL = tradeUpInstance.collections[collection][itemName]["imageURL"];
       }
       catch (error) {
-        item.imageURL = "";
-      }        
+        item.imageURL = getItemImage(item.item_url);
+      }
+      let updatedStickers = item.stickers || [];
+      if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
+        updatedStickers = updatedStickers.map(sticker => {
+          const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
+          const finalStickerURL = hasStickerImage
+            ? sticker.imageURL
+            : getItemImage(sticker.sticker_url);
+          return {
+            ...sticker,
+            stickerImageUrl: finalStickerURL,
+          };
+        });
+      }
+      item.stickers = updatedStickers;
     });
 
     // For TransferTo, show inventory items that are movable only
@@ -658,35 +677,7 @@ const sortData = (key) => {
   
 const sortedItems = computed(() => {
   let result = [...groupedFilteredItems.value];
-
-  result = result.map(item => {
-    const hasImage = item.imageURL && item.imageURL.trim() !== '';
-    const finalImageURL = hasImage
-      ? item.imageURL
-      : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${item.item_url}_png.png`;
-
-    let updatedStickers = item.stickers || [];
-    if (Array.isArray(updatedStickers) && updatedStickers.length > 0) {
-      updatedStickers = updatedStickers.map(sticker => {
-        const hasStickerImage = sticker.imageURL && sticker.imageURL.trim() !== '';
-        const finalStickerURL = hasStickerImage
-          ? sticker.imageURL
-          : `https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/${sticker.sticker_url}_png.png`;
-        return {
-          ...sticker,
-          stickerImageUrl: finalStickerURL,
-        };
-      });
-    }
-
-    return {
-      ...item,
-      imageURL: finalImageURL,
-      stickers: updatedStickers,
-    };
-  });
-
-
+  
   if (rarityFilterTradeUp.value) {
     result = result.filter(item =>
       item.rarity === rarityFilterTradeUp.value
@@ -914,23 +905,6 @@ const onFloatFilterChange = (type, e) => {
   else if (type === 'max') {
     maxFloatInput.value = sanitizeFloatString(e.target.value);
   }   
-};
-
-const formatUnlockDate = (isoString) => {
-  if (!isoString) return '';
-  const d = new Date(isoString);
-  if (isNaN(d)) return '';
-  const day = d.getDate();
-  const month = d.getMonth() + 1;
-  const year = d.getFullYear();
-  return `${day}.${month}.${year}`;
-};
-
-const isItemTradable = (isoString) => {
-  if (!isoString) return true;
-  const t = Date.parse(isoString);
-  if (!Number.isFinite(t)) return true;
-  return t <= Date.now();
 };
 </script>
   

@@ -245,12 +245,12 @@ app.get('/api/tradeups', (req, res) => {
 
 app.post('/api/confirm/tradeup', async (req, res) => {
   try {
-    const { itemsIds, itemsSeeds, itemsFloats, recipeId } = req.body;
+    const { itemsIds, itemsNames, itemsSeeds, itemsFloats, recipeId } = req.body;
     if (SteamSession.isSessionActive()) {
       try {
         const timestamp = Math.floor(Date.now() / 1000);
         const craftedItem = await SteamSession.craft(itemsIds, recipeId);
-        await saveCraft(itemsIds, itemsSeeds, itemsFloats, craftedItem, timestamp);
+        await saveCraft(itemsIds, itemsNames, itemsSeeds, itemsFloats, craftedItem, timestamp);
         console.log(craftedItem);
         let resultItem = csgo_items.itemConverter(craftedItem);
         return res.status(200).json({"success": true, "craftedItem": resultItem})
@@ -271,18 +271,20 @@ app.post('/api/logout', async (req, res) => {
   res.json(response);
 });
 
-async function saveCraft(itemsIds, paint_seed, paint_wears, craftedItem, timestamp) {
+async function saveCraft(itemsIds, itemsNames, paint_seed, paint_wears, craftedItem, timestamp) {
   const craftsPath = path.join(__dirname, 'data', 'crafts.json');
 
   const craftData = {
       timestamp: timestamp,
       input: itemsIds.map((id, index) => ({
           id: id,
+          name: itemsNames[index],
           paint_seed: paint_seed[index],
           paint_wear: paint_wears[index]
       })),
       output: {
           id: craftedItem.id,
+          paint_index: craftedItem.paint_index,
           paint_seed: craftedItem.paint_seed,
           paint_wear: craftedItem.paint_wear
       }
