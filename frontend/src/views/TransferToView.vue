@@ -1042,8 +1042,11 @@ tr{
 }
 
 .item-info {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
     vertical-align: middle; 
+    min-height: 44px;
 }
 
 .item-name {
@@ -1053,6 +1056,11 @@ tr{
 .item-wear-name {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* If wear label is empty, collapse it so the row stays compact */
+.item-wear-name:empty {
+  display: none;
 }
 
 button {

@@ -1139,8 +1139,11 @@ tr{
 }
 
 .item-info {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
     vertical-align: middle; 
+    min-height: 44px;
 }
 
 .item-name {

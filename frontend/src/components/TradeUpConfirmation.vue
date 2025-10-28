@@ -35,7 +35,7 @@
                 </div>
                 <div class="outcomes-container">
                     <h4>Possible outcomes</h4>
-                    <div class="outcomes-list scrollable" style="overflow-y: auto; max-height: 320px;">
+                    <div class="outcomes-list scrollable" style="overflow-y: auto; overflow-x: hidden; max-height: 320px;">
                         <div v-for="(outcome, index) in outcomes" :key="'outcome-' + index" class="outcome-item">
                             <div style="width: 100%;display: flex; justify-content: space-between;">
                                 <span>{{ outcome.item_name }}</span>
@@ -126,9 +126,7 @@ const handleOverlayClick = (event) => {
     color: white;
     padding: 20px;
     border-radius: 8px;
-    /* width: 50vw; */
     text-align: center;
-    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
 }
 
 .tradeup-container {
@@ -154,7 +152,7 @@ const handleOverlayClick = (event) => {
 .item-name {
     display: block;
     overflow: auto;
-    white-space: nowrap;
+    white-space: normal;
 }
 .item-name{
     text-align: left;
