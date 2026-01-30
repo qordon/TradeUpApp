@@ -13885,6 +13885,439 @@
             "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLpk8ewrHZk9___OPU5H_2cDWyZz-l0ufNtcCW6khUz_T-AnNagJH3FbwQnCsEmTeEMs0aww9biMby3tleKjtkQmSX-2yMfv311o7FVNa3OfdQ",
             "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLpk8ewrHZk9___OPU5H_2cDWyZz-l0ufNtcCW6khUz_T-AnNagJH3FbwQnCsEmTeEMs0aww9biMby3tleKjtkQmSX-2yMfv311o7FVNa3OfdQ"
         }
+    },
+    "The Achroma Collection": {
+        "AWP | The End": {
+            "name": "AWP | The End",
+            "quality": "Classified",
+            "min-wear": "0.00",
+            "max-wear": "1.00",
+            "category": "normal",
+            "best_quality": 8,
+            "trade_up": false,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf7i1e0PC5V7BlJc-WAGOvwPlmj-1gSCGn20hytjzSy4r_cy_FZlB1DJdxE7QN50bql4LuNL7g4gTYj9lGnir9iyJXrnE8dWNkiOM",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf7i1e0PC5V7BlJc-WAGOvwPlmj-1gSCGn20hytjzSy4r_cy_FZlB1DJdxE7QN50bql4LuNL7g4gTYj9lGnir9iyJXrnE8dWNkiOM"
+        },
+        "AK-47 | Breakthrough": {
+            "name": "AK-47 | Breakthrough",
+            "quality": "Restricted",
+            "min-wear": "0.00",
+            "max-wear": "0.75",
+            "category": "normal",
+            "best_quality": 6,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wipC6s20baB-H_yaCW-Ej-olseI8Gyq1kBkh4GrVz4queXySPAd0XJEkQ7UMu0TrldaxYbzjsw3Ay9USrh0CgFA",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wipC6s20baB-H_yaCW-Ej-olseI8Gyq1kBkh4GrVz4queXySPAd0XJEkQ7UMu0TrldaxYbzjsw3Ay9USrh0CgFA"
+        },
+        "Glock-18 | Trace Lock": {
+            "name": "Glock-18 | Trace Lock",
+            "quality": "Restricted",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 6,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1T-825YK15Jc-WCmCV0tF6ueZhW2fiw0Ujt2yGy4ysIHzEaQUlWJJyE-dbsBK5x4XjM7ix7gDeiYkUmy6okGoXubB2-hmv",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1T-825YK15Jc-WCmCV0tF6ueZhW2fiw0Ujt2yGy4ysIHzEaQUlWJJyE-dbsBK5x4XjM7ix7gDeiYkUmy6okGoXubB2-hmv"
+        },
+        "AUG | Creep": {
+            "name": "AUG | Creep",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.80",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwi5Hf7i1e0PO7b5tuMvWWHlicyOl-pK9oSnnnkRl34WqBwtavcH6TagRxWZR2E7FYuhm9wIblZr60slHXjYtM02yg2RFs1ez8",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwi5Hf7i1e0PO7b5tuMvWWHlicyOl-pK9oSnnnkRl34WqBwtavcH6TagRxWZR2E7FYuhm9wIblZr60slHXjYtM02yg2RFs1ez8"
+        },
+        "P90 | Aeolian Light": {
+            "name": "P90 | Aeolian Light",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhx8bf9Tte0POse7B_IfOHMWyezvpJvOhuRz39zER2tWvVyd2qdXOeaVN2WJV3Qu9Z50GwxNa1NLji4gPfjINDziv8iDQJsHgxRzCSnw",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhx8bf9Tte0POse7B_IfOHMWyezvpJvOhuRz39zER2tWvVyd2qdXOeaVN2WJV3Qu9Z50GwxNa1NLji4gPfjINDziv8iDQJsHgxRzCSnw"
+        },
+        "Desert Eagle | The Daily Deagle": {
+            "name": "Desert Eagle | The Daily Deagle",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.58",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL1m5fn8Sdk5-urV6dsMs-EHGaA_uJ_t-l9AXm3kxh162qHy9-pd3PEagMmDJMkRuEK4BG4x9zhZe-07gPdiotMyivgznQej0ovEM4",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL1m5fn8Sdk5-urV6dsMs-EHGaA_uJ_t-l9AXm3kxh162qHy9-pd3PEagMmDJMkRuEK4BG4x9zhZe-07gPdiotMyivgznQej0ovEM4"
+        },
+        "P2000 | Grip Tape": {
+            "name": "P2000 | Grip Tape",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.75",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0OGhbZt9cqDDXliX0-dmo95lRi67gVMlsj7SmNiuIHmfaA4gDZEhQeBZuxa7m4CxYu-w7geL2osRxS6qiSIc8G81tBwotro2",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0OGhbZt9cqDDXliX0-dmo95lRi67gVMlsj7SmNiuIHmfaA4gDZEhQeBZuxa7m4CxYu-w7geL2osRxS6qiSIc8G81tBwotro2"
+        },
+        "MAC-10 | Snow Splash": {
+            "name": "MAC-10 | Snow Splash",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8n5WxrR1T9veRa6V_H-eBD3fE_uJ_t-l9ASrklhkk4Wrdm9msIy3DblVyA5cmQLMDtxS_ltPmYe_msgbeiY5EziTgznQeYbrm-7Y",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8n5WxrR1T9veRa6V_H-eBD3fE_uJ_t-l9ASrklhkk4Wrdm9msIy3DblVyA5cmQLMDtxS_ltPmYe_msgbeiY5EziTgznQeYbrm-7Y"
+        },
+        "MP5-SD | Snow Splash": {
+            "name": "MP5-SD | Snow Splash",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsPz-R1T9veRZbQ4H_OSHFiH0-9m5N5lRi67gVMk5WXQztarIHiVbQ8lApF2F7QN5xS_xtfnNujqswTWidhAnyr3jngc8G81tMzA05Bb",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsPz-R1T9veRZbQ4H_OSHFiH0-9m5N5lRi67gVMk5WXQztarIHiVbQ8lApF2F7QN5xS_xtfnNujqswTWidhAnyr3jngc8G81tMzA05Bb"
+        },
+        "FAMAS | Vendetta": {
+            "name": "FAMAS | Vendetta",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3n5vh7h1I4PeRarNSIvySHXOvzedxuPUnSS-3wEx362jWw9eodnLGaFMhCZUlQO5etBe_k9XlNuvkslDcg91FxDK-0H3uRMe02w",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3n5vh7h1I4PeRarNSIvySHXOvzedxuPUnSS-3wEx362jWw9eodnLGaFMhCZUlQO5etBe_k9XlNuvkslDcg91FxDK-0H3uRMe02w"
+        },
+        "M4A4 | Aeolian Dark": {
+            "name": "M4A4 | Aeolian Dark",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC6s2vard5MvGQGlibz-Fij-w9cCW6khUz_TvQnt37cS_EaQAgDMciEbVb4EK4ktzvZb_ltlOI3o4RmHmt23xKvSh1o7FVNKLRyHM",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC6s2vard5MvGQGlibz-Fij-w9cCW6khUz_TvQnt37cS_EaQAgDMciEbVb4EK4ktzvZb_ltlOI3o4RmHmt23xKvSh1o7FVNKLRyHM"
+        },
+        "R8 Revolver | Dark Chamber": {
+            "name": "R8 Revolver | Dark Chamber",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.80339",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLjm4Dv8TRe_c29Z6dlH-OeAWyV_ulkufF6cCW6khUz_WqGmNatdnzDbAR0CcR2FLQO4UKxxNfuM-rj4QzX3YsTziuqiHgf7351o7FV2A-FKGc",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLjm4Dv8TRe_c29Z6dlH-OeAWyV_ulkufF6cCW6khUz_WqGmNatdnzDbAR0CcR2FLQO4UKxxNfuM-rj4QzX3YsTziuqiHgf7351o7FV2A-FKGc"
+        },
+        "MP9 | Dizzy": {
+            "name": "MP9 | Dizzy",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8js_f7i1e0PaqeKV5H-OEB3Wc_uxhj-1gSCGn204k5mXQwoz4dnrDaQ92CMB3R7FZtxa4mtfkZuyx5gHb2YNNz336jyxXrnE8H46mzhg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8js_f7i1e0PaqeKV5H-OEB3Wc_uxhj-1gSCGn204k5mXQwoz4dnrDaQ92CMB3R7FZtxa4mtfkZuyx5gHb2YNNz336jyxXrnE8H46mzhg"
+        },
+        "PP-Bizon | Bizoom": {
+            "name": "PP-Bizon | Bizoom",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.58",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzl4zv8x1T9veRa6V_H-eBD3evw-dsv-9WQyC0nQlp6zzdzI6rIHOealMiCJolEOVb5EPrx9PuN7_i5lHW2d9NySj2jy9N6DErvbhOwQNAJg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzl4zv8x1T9veRa6V_H-eBD3evw-dsv-9WQyC0nQlp6zzdzI6rIHOealMiCJolEOVb5EPrx9PuN7_i5lHW2d9NySj2jy9N6DErvbhOwQNAJg"
+        },
+        "Dual Berettas | Silver Pour": {
+            "name": "Dual Berettas | Silver Pour",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.678431",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL0kp_0-B1I4PeRaad_OfyaDViWzeFh495lRi67gVN3tmnTn4yreXvFZgYjD8QlE-QK4EGxkda0Ze20tQbZ2Y9CyS_5iC1K8G81tJXDIHOE",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL0kp_0-B1I4PeRaad_OfyaDViWzeFh495lRi67gVN3tmnTn4yreXvFZgYjD8QlE-QK4EGxkda0Ze20tQbZ2Y9CyS_5iC1K8G81tJXDIHOE"
+        },
+        "SSG 08 | Sans Comic": {
+            "name": "SSG 08 | Sans Comic",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.50",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLijZGwpR1T9veRa6tgKfOsHW-R0etlj-1gSCGn20wl5W3VmImqcCmWOlAjXpolR-MP50Wwl9DmMOix5QXZ2d5EzSWqi3tXrnE8nx7Jn58",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLijZGwpR1T9veRa6tgKfOsHW-R0etlj-1gSCGn20wl5W3VmImqcCmWOlAjXpolR-MP50Wwl9DmMOix5QXZ2d5EzSWqi3tXrnE8nx7Jn58"
+        },
+        "SCAR-20 | Zinc": {
+            "name": "SCAR-20 | Zinc",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLinZfyr3Jk5-urV6dlMv-eC1iCyP5mvORWQyC0nQlpsD7Qydr6dSjEO1MnD5RzRuUIskPpl9zmN-7i5FbYj49NmXj4jXhP6TErvbhHIJnnmg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLinZfyr3Jk5-urV6dlMv-eC1iCyP5mvORWQyC0nQlpsD7Qydr6dSjEO1MnD5RzRuUIskPpl9zmN-7i5FbYj49NmXj4jXhP6TErvbhHIJnnmg"
+        },
+        "M249 | Sleet": {
+            "name": "M249 | Sleet",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8zMK5wipC6s2jOvA0H_OSHFiH0-9mj7JWQyC0nQlp6zzQwtiudHvCO1MlDJByQuIC4UO7lta0Zuy0swPZiNhDxSv33C0f6zErvbjSvv-GUg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8zMK5wipC6s2jOvA0H_OSHFiH0-9mj7JWQyC0nQlp6zzQwtiudHvCO1MlDJByQuIC4UO7lta0Zuy0swPZiNhDxSv33C0f6zErvbjSvv-GUg"
+        },
+        "P250 | Sleet": {
+            "name": "P250 | Sleet",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhzMOwwipC6s2tabZSN-KSHljD_uJ_t-l9AXCwxhwi6j_Syoysc36TbAAhXpYiRuIPshLsk4bnYemw7wCKiNoUyC7gznQekhpLnpY",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhzMOwwipC6s2tabZSN-KSHljD_uJ_t-l9AXCwxhwi6j_Syoysc36TbAAhXpYiRuIPshLsk4bnYemw7wCKiNoUyC7gznQekhpLnpY"
+        },
+        "Nova | Currents": {
+            "name": "Nova | Currents",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL_kYDhwipC6s2pbatvKeKXHVicyOl-pK87TSrqzBwisWXTz9qvJXnFOgcnW5J1RLEPuhe_mtHgPuqws1SPi4tA02yg2UgVtCWp",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL_kYDhwipC6s2pbatvKeKXHVicyOl-pK87TSrqzBwisWXTz9qvJXnFOgcnW5J1RLEPuhe_mtHgPuqws1SPi4tA02yg2UgVtCWp"
+        }
+    },
+    "The Harlequin Collection": {
+        "M4A1-S | Party Animal": {
+            "name": "M4A1-S | Party Animal",
+            "quality": "Classified",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 8,
+            "trade_up": false,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwjFS4_ega6F_H_iKC1iRz-d7se1WXzu6mwkY6m2WpYPwJiPTcFNxDcMjEeUIuxK-wNWyPrzj4wePiIxGmCj5jngcuCpvt7wBAKFw-KbJz1aW-PVDUm8",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwjFS4_ega6F_H_iKC1iRz-d7se1WXzu6mwkY6m2WpYPwJiPTcFNxDcMjEeUIuxK-wNWyPrzj4wePiIxGmCj5jngcuCpvt7wBAKFw-KbJz1aW-PVDUm8"
+        },
+        "AWP | Exothermic": {
+            "name": "AWP | Exothermic",
+            "quality": "Restricted",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 6,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf9Tte0PSneqF6L-KYMXeR1e1-tfJWQyC0nQlp4W7Xzd-qcH_DO1N0W5FzQuEP5kW8ltfnM-q24wzYgt0RmC_7jSlL5jErvbgX7dER8Q",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf9Tte0PSneqF6L-KYMXeR1e1-tfJWQyC0nQlp4W7Xzd-qcH_DO1N0W5FzQuEP5kW8ltfnM-q24wzYgt0RmC_7jSlL5jErvbgX7dER8Q"
+        },
+        "USP-S | Sleeping Potion": {
+            "name": "USP-S | Sleeping Potion",
+            "quality": "Restricted",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 6,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkjYbf7itX6vytbbZSM_-WMXeF0_56td5lRi67gVMh4D-Gn4qheH6RPFIoCcAhELVf5kK-xNexMe_rtFfai45EnC_8iH9I8G81tAH9GDu2",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkjYbf7itX6vytbbZSM_-WMXeF0_56td5lRi67gVMh4D-Gn4qheH6RPFIoCcAhELVf5kK-xNexMe_rtFfai45EnC_8iH9I8G81tAH9GDu2"
+        },
+        "Galil AR | Sky Mandala": {
+            "name": "Galil AR | Sky Mandala",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2n5rp8SNJ0Pq3bZtoIeKHBlidwOByse1ocCW6khUz_WzSy42rcS3CbwMkD5Z0TOAOsBDswNfhZu3q5w3ajdpNzSj-ii9P7nl1o7FVbxi6bE4",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2n5rp8SNJ0Pq3bZtoIeKHBlidwOByse1ocCW6khUz_WzSy42rcS3CbwMkD5Z0TOAOsBDswNfhZu3q5w3ajdpNzSj-ii9P7nl1o7FVbxi6bE4"
+        },
+        "UMP-45 | Warm Blooded": {
+            "name": "UMP-45 | Warm Blooded",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkk4a0qB1T9veRfKF-NM-SAG6dwOJJoPNgQT2MwUgYvzSCkpu3dnuUalN2X5IjRe5fsUa9xoeyN-rr7waMiINDnC7_jnlI6ixq5OpWWb1lpPMCclDonA",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkk4a0qB1T9veRfKF-NM-SAG6dwOJJoPNgQT2MwUgYvzSCkpu3dnuUalN2X5IjRe5fsUa9xoeyN-rr7waMiINDnC7_jnlI6ixq5OpWWb1lpPMCclDonA"
+        },
+        "Zeus x27 | Earth Mandala": {
+            "name": "Zeus x27 | Earth Mandala",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.66",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLln4Xl7x1T9veRbaV_NPisA2aexe96sd5lTBa_nBovp3PWyYr_I3OXbQJxXJIkF7FY4BS_l4e0Ybnl4Vba2INGyy2tiXhAvHw9_a9cBgJStbOC",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLln4Xl7x1T9veRbaV_NPisA2aexe96sd5lTBa_nBovp3PWyYr_I3OXbQJxXJIkF7FY4BS_l4e0Ybnl4Vba2INGyy2tiXhAvHw9_a9cBgJStbOC"
+        },
+        "Five-SeveN | Fraise Crane": {
+            "name": "Five-SeveN | Fraise Crane",
+            "quality": "Mil-Spec",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 4,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRe6toH-CaAGyvwvx3vuR6cCW6khUz_WmHno2ueSmRbFAmC8MjF7EPsBDtwdDkZe_n41fYithDzyWo2CwY6nx1o7FVHGyLYB0",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRe6toH-CaAGyvwvx3vuR6cCW6khUz_WmHno2ueSmRbFAmC8MjF7EPsBDtwdDkZe_n41fYithDzyWo2CwY6nx1o7FVHGyLYB0"
+        },
+        "MP7 | Coral Paisley": {
+            "name": "MP7 | Coral Paisley",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.65",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsHf9Tte0OKvYbdhJemsGWaCzNF6ueZhW2fklEV-sGvUzdigdX2WbgciCZQjRe9b50Xqm4bkMevj5gaMgo1AnCiskGoXuQsY-r8v",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsHf9Tte0OKvYbdhJemsGWaCzNF6ueZhW2fklEV-sGvUzdigdX2WbgciCZQjRe9b50Xqm4bkMevj5gaMgo1AnCiskGoXuQsY-r8v"
+        },
+        "MP5-SD | Picnic": {
+            "name": "MP5-SD | Picnic",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.75",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsPz-R1I4PeReqFpH_yaCW-Ej7sk5OBtGnDmwE4i526Dm9msI3LBbldxWcAiF7ZftBG5kdWzNLzi5wbAy9US1mpPgEo",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8jsPz-R1I4PeReqFpH_yaCW-Ej7sk5OBtGnDmwE4i526Dm9msI3LBbldxWcAiF7ZftBG5kdWzNLzi5wbAy9US1mpPgEo"
+        },
+        "Tec-9 | Banana Leaf": {
+            "name": "Tec-9 | Banana Leaf",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLlm5W5wipC6s2sabBkK8-WF2KD_vpzs7hWQyC0nQlpsWnRz9atIH3Gag4oCpQjFucP4Rfux9PuNr7j7wDZ3tgTny3_h3xPvzErvbgFFfz3Tg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLlm5W5wipC6s2sabBkK8-WF2KD_vpzs7hWQyC0nQlpsWnRz9atIH3Gag4oCpQjFucP4Rfux9PuNr7j7wDZ3tgTny3_h3xPvzErvbgFFfz3Tg"
+        },
+        "XM1014 | XoooM": {
+            "name": "XM1014 | XoooM",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLpk8ewrHZk_P2rV71oLPycGViIzNF6ueZhW2fhkEpz5T7dw9-tJ3-Rb1cpD8chR7JZuxXsloe0Ybux4VDY2N1CnH6vkGoXuebNu3Fx",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLpk8ewrHZk_P2rV71oLPycGViIzNF6ueZhW2fhkEpz5T7dw9-tJ3-Rb1cpD8chR7JZuxXsloe0Ybux4VDY2N1CnH6vkGoXuebNu3Fx"
+        },
+        "SSG 08 | Calligrafaux": {
+            "name": "SSG 08 | Calligrafaux",
+            "quality": "Industrial",
+            "min-wear": "0.00",
+            "max-wear": "1.00",
+            "category": "normal",
+            "best_quality": 2,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLijZGwpR1T-828baBSJfSUC3Svx-d4te1gQSyMmRQguynLwov6JHmRagd0WcBxQuYItxWxlYLgM--z4gDXjthGnnmqjXxAvSpqtfFCD_S8UR_TMg",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLijZGwpR1T-828baBSJfSUC3Svx-d4te1gQSyMmRQguynLwov6JHmRagd0WcBxQuYItxWxlYLgM--z4gDXjthGnnmqjXxAvSpqtfFCD_S8UR_TMg"
+        },
+        "SG 553 | Safari Print": {
+            "name": "SG 553 | Safari Print",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.70",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLimcO1qx1T9veRaapkLfGfMXeCyOBij-1qcCW6khUz_T_Rn9qoIn-Sb1MkX5B3RecL4EXsltXmP-u0tgbbj4tEyHn7334a6Ch1o7FVNpTVjWQ",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLimcO1qx1T9veRaapkLfGfMXeCyOBij-1qcCW6khUz_T_Rn9qoIn-Sb1MkX5B3RecL4EXsltXmP-u0tgbbj4tEyHn7334a6Ch1o7FVNpTVjWQ"
+        },
+        "FAMAS | Byproduct": {
+            "name": "FAMAS | Byproduct",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.55",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3n5vh7h1T9veRbq1_JeecHGyv0e9is-lsXBa1lBAmoAKJk4jxNWWUaVN2DsB5Re4D4BLuxoDvP-PmsQffioJFnnqv3y1A7C9r5-tUUPd35OSJ2E5Oe0pX",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3n5vh7h1T9veRbq1_JeecHGyv0e9is-lsXBa1lBAmoAKJk4jxNWWUaVN2DsB5Re4D4BLuxoDvP-PmsQffioJFnnqv3y1A7C9r5-tUUPd35OSJ2E5Oe0pX"
+        },
+        "PP-Bizon | Thermal Currents": {
+            "name": "PP-Bizon | Thermal Currents",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzl4zv8x1T9veRb6FiIvmBCnSv0vt4ouh6Sha_nBovp3PRmdysdHLCZwUjDsB1FOcJ4BW4mobhZu3q7wyKj4MTzCj2jHhJu30-_a9cBrr9UcuO",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzl4zv8x1T9veRb6FiIvmBCnSv0vt4ouh6Sha_nBovp3PRmdysdHLCZwUjDsB1FOcJ4BW4mobhZu3q7wyKj4MTzCj2jHhJu30-_a9cBrr9UcuO"
+        },
+        "Sawed-Off | Crimson Batik": {
+            "name": "Sawed-Off | Crimson Batik",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLin4Hl-S1d6c2mcaFSIvGHB2yvxPdzo95lRi67gVNxsGjUzIz9ci7DblclD5d1Ee5esEO4mt3vN7_g5VeIj4xAzi2r23kb8G81tFlYllZq",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLin4Hl-S1d6c2mcaFSIvGHB2yvxPdzo95lRi67gVNxsGjUzIz9ci7DblclD5d1Ee5esEO4mt3vN7_g5VeIj4xAzi2r23kb8G81tFlYllZq"
+        },
+        "CZ75-Auto | Honey Paisley": {
+            "name": "CZ75-Auto | Honey Paisley",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.60",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLyhMG1_B1T9veReKVkM_yWF1iUxP13pN5lRi67gVN2tW3Sntuvd3OROFUoXsB2Q-9Zs0Hqlta0Pujr7waIiYJAxS-sjy0c8G81tBzzAWSY",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLyhMG1_B1T9veReKVkM_yWF1iUxP13pN5lRi67gVN2tW3Sntuvd3OROFUoXsB2Q-9Zs0Hqlta0Pujr7waIiYJAxS-sjy0c8G81tBzzAWSY"
+        },
+        "R8 Revolver | Mauve Aside": {
+            "name": "R8 Revolver | Mauve Aside",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.80339",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLjm4Dv8TRe_c29Z6dlH_OcHneV09F3s-JsQT2MhxgxvDGTn53GLSLANkI-C5d5Q7EK4xLpxtDhY-vksleP3d1DzXn52itKvCxstewGVKosqPDTiRaBb-Oa78uGvw",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLjm4Dv8TRe_c29Z6dlH_OcHneV09F3s-JsQT2MhxgxvDGTn53GLSLANkI-C5d5Q7EK4xLpxtDhY-vksleP3d1DzXn52itKvCxstewGVKosqPDTiRaBb-Oa78uGvw"
+        },
+        "MP9 | Bee-Tron": {
+            "name": "MP9 | Bee-Tron",
+            "quality": "Consumer",
+            "min-wear": "0.00",
+            "max-wear": "0.90",
+            "category": "normal",
+            "best_quality": 1,
+            "trade_up": true,
+            "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8js_f7i1e0OurZKhiN8-RB3OD_uJ_t-l9ASrhzRt062_Qm4n8cn-XbFQkCcMkTLQD5EW8m9TjM--34gXf2Y1Hzn_gznQepx3qArs",
+            "imageURL": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8js_f7i1e0OurZKhiN8-RB3OD_uJ_t-l9ASrhzRt062_Qm4n8cn-XbFQkCcMkTLQD5EW8m9TjM--34gXf2Y1Hzn_gznQepx3qArs"
+        }
     }
     
 }
